@@ -58,7 +58,6 @@ train_dataset = tf.data.Dataset.from_tensor_slices((X_train, y_train))
 val_dataset = tf.data.Dataset.from_tensor_slices((X_test, y_test))
 
 
-# %%
 
 # %%
 
