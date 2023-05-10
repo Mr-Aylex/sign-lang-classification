@@ -1,0 +1,10 @@
+version: "3.10"
+services:
+  MPM:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mpm
+    image: dopehat54/mpm:1.0.0
+    ports:
+      - 5000:5000
