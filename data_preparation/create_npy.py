@@ -18,6 +18,8 @@ tqdm.pandas()
 DATA_FOLDER = "/mnt/e/sign-lang-data/"
 train = pd.read_csv(os.path.join(DATA_FOLDER, "train.csv"))
 
+if not os.path.exists(os.path.join(DATA_FOLDER, "sequences")):
+    os.mkdir(os.path.join(DATA_FOLDER, "sequences"))
 
 # %%
 def convert_to_npy(path):
@@ -42,3 +44,6 @@ def convert_to_npy(path):
 
 # %%
 train["new_path"] = train["path"].progress_apply(lambda x: convert_to_npy(x))
+
+# %%
+train.to_csv(os.path.join(DATA_FOLDER, "train_processed.csv"), index=False)
