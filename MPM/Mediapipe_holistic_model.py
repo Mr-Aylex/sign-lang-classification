@@ -1,9 +1,42 @@
+import logging
 import cv2
 import mediapipe as mp
 import time
 import pandas as pd
-from flask import Flask, render_template
-import numpy as np
+from botocore.config import Config
+import boto3 as bt
+
+CREDENTIAL_FILE = pd.read_csv("Theo-Dalex_credentials.csv")
+ACCESS_KEY = CREDENTIAL_FILE['Nom d\'utilisateur'][0]
+SECRET_KEY = CREDENTIAL_FILE['Mot de passe'][0]
+
+
+BUCKET_NAME = "sign-video"
+
+S3 = bt.resource(
+    's3',
+    aws_access_key_id=ACCESS_KEY,
+    aws_secret_access_key=SECRET_KEY,
+    config=Config(
+        region_name='eu-west-3',
+        )
+)
+
+
+def download_file(bucket_name, file_name):
+    logging.info('Downloading file %s from bucket %s', file_name, bucket_name)
+    S3.Bucket(bucket_name).download_file(Key=file_name, Filename=file_name)
+    logging.info('Download complete')
+
+def delete_all_files(bucket_name):
+    logging.info('Deleting all files from bucket %s', bucket_name)
+    bucket = S3.Bucket(bucket_name)
+    bucket.objects.all().delete()
+    logging.info('Delete complete')
+
+
+
+logging.error("test")
 pd.set_option('display.max_rows', None)
 mp_drawing = mp.solutions.drawing_utils
 mp_holistic = mp.solutions.holistic
@@ -56,15 +89,19 @@ def get_post_landmark_indexes(pose, frame):
 
 def get_face_landmark_indexes(face, frame):
     face_landmarks = []
-    for i in range(len(face.face_landmarks.landmark)):
-        face_landmarks.append([frame, f"{frame}-face-{i}", "face", i, face.face_landmarks.landmark[i].x, face.face_landmarks.landmark[i].y, face.face_landmarks.landmark[i].z])
+    if face.face_landmarks:
+        for i in range(len(face.face_landmarks.landmark)):
+            face_landmarks.append([frame, f"{frame}-face-{i}", "face", i, face.face_landmarks.landmark[i].x, face.face_landmarks.landmark[i].y, face.face_landmarks.landmark[i].z])
+    else:
+        for i in range(len(face.face_landmarks.landmark)):
+            face_landmarks.append([frame, f"{frame}-face-{i}", "face", i, 0, 0, 0])
     return face_landmarks
 
 
-def Mediapipe_holistic():
+def Mediapipe_holistic(video):
     count = 0
     data = []
-    cap = cv2.VideoCapture("WIN_20230427_12_27_08_Pro.mp4")
+    cap = cv2.VideoCapture(video)
     # cap = cv2.VideoCapture(0)
     with mp_holistic.Holistic(
             min_detection_confidence=0.5,
@@ -124,5 +161,15 @@ def Mediapipe_holistic():
     return df
 
 
-df = Mediapipe_holistic()
-print(df.head())
+video = ""
+for object in S3.Bucket(BUCKET_NAME).objects.all():
+    video = object.key
+    download_file(BUCKET_NAME,object.key)
+
+delete_all_files(BUCKET_NAME)
+
+
+df = Mediapipe_holistic(video)
+print(df.head(1000))
+logging.error("test finished")
+print("test finished")

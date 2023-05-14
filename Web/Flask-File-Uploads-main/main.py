@@ -1,9 +1,11 @@
 from flask import Flask, render_template,request 
 from flask_wtf import FlaskForm
 from wtforms import FileField, SubmitField
+from botocore.config import Config
 from werkzeug.utils import secure_filename
 import os
 from wtforms.validators import InputRequired
+from kubernetes import client, config
 
 app = Flask(__name__, template_folder='templates')
 
@@ -35,6 +37,48 @@ def upload():
         video.save('static/files/'+video.filename)
         return render_template('preview.html', video_name = video.filename)
     return "pas le bon type de fichier"
+
+
+@app.route('/translate', methods=['GET', "POST"])
+def translate():
+    config.load_kube_config()
+
+    # Create a Kubernetes API client
+    api_client = client.CoreV1Api()
+
+    # Define the Pod specification
+    pod_manifest = {
+        'apiVersion': 'v1',
+        'kind': 'Pod',
+        'metadata': {
+            'name': 'mpm'
+        },
+        'spec': {
+            'restartPolicy': 'Never',
+            'containers': [
+                {
+                    'name': 'mpm',
+                    'image': 'dopehat54/mpm:latest',
+                    'ports': [{'containerPort': 80}]
+                }
+            ]
+        }
+    }
+    try:
+        api_client.read_namespaced_pod(name="mpm", namespace="default")
+        # Pod exists, so delete it
+        api_client.delete_namespaced_pod(name="mpm", namespace="default")
+        print(f"Pod mpm in namespace default deleted successfully.")
+    except client.rest.ApiException as e:
+        if e.status == 404:
+            # Pod doesn't exist, so do nothing
+            print(f"Pod mpm in namespace default doesn't exist.")
+        else:
+            # Unexpected error occurred
+            print(f"Error: {e}")
+    api_client.create_namespaced_pod(namespace='default', body=pod_manifest) #création de pod
+    return "Pod created"
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

@@ -9,8 +9,13 @@
         <source src="{{url_for('static', filename='files/' + video_name)}}" type="video/mp4">
         Your browser does not support the video tag.
     </video>
+<!--    <div class="buttons-container">-->
+<!--        <button class="button-arounder">Traduire la vidéo</button>-->
+<!--    </div>-->
     <div class="buttons-container">
-        <button class="button-arounder">Traduire la vidéo</button>
+        <form action="{{url_for('translate')}}" method='POST' enctype='multipart/form-data'>
+             <input type="submit" value="Translate" class="button-arounder">
+        </form>
     </div>
 </body>
 </html>
