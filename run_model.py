@@ -3,9 +3,8 @@ import keras
 from keras import utils, optimizers, losses, metrics
 import numpy as np
 import pandas as pd
-from pandarallel import pandarallel
-
-pandarallel.initialize(nb_workers=15, progress_bar=True)
+#from pandarallel import pandarallel
+#pandarallel.initialize(nb_workers=15, progress_bar=True)
 from tqdm import tqdm
 import os
 from tqdm.keras import TqdmCallback
@@ -23,16 +22,24 @@ dict_sign = {}
 for i, sign in enumerate(train["sign"].unique()):
     dict_sign[sign] = i
 # %%
-# train = train.sample(10000)
-# %%
+
 from custom_model.first import CustomModel
+from custom_model.second import CustomModel as CustomModel2
+from custom_model.third import CustomModel as CustomModel3
 
 batch_size = 64
 timesteps = 100
-features = 1086
+#features = 1086
+features = 1629
 nb_classes = len(train["sign"].unique())
 
-model = CustomModel(batch_size, timesteps, features, nb_classes)
+model = CustomModel3(batch_size, timesteps, features, nb_classes)
+# first call to initialize the model.
+model(tf.zeros((batch_size, timesteps, features)))
+model.load_weights("checkpoint/gru/model1.h5")
+
+#model = tf.keras.saving.load_model("checkpoint/gru2/model.h5")
+
 
 
 # model = CustomModel( input_layer, output_layer)
@@ -71,16 +78,16 @@ def load_npy_file(filename, label):
 
     sequence = np.load(filename).astype(np.float32)
     # get only the x and y coordinates
-    sequence = sequence[:, :, :2]
+    sequence = sequence[:, :, :3]
 
-    # sequence = np.reshape(sequence, (sequence.shape[0], 1629))
-    sequence = np.reshape(sequence, (sequence.shape[0], 1086))
+    sequence = np.reshape(sequence, (sequence.shape[0], 1629))
+    #sequence = np.reshape(sequence, (sequence.shape[0], 1086))
 
     if len(sequence) > max_nb_frames:
         sequence = sequence[:max_nb_frames]
     else:
-        # sequence = np.concatenate((sequence, np.zeros((max_nb_frames - len(sequence), 1629))))
-        sequence = np.concatenate((sequence, np.zeros((max_nb_frames - len(sequence), 1086))))
+        sequence = np.concatenate((sequence, np.zeros((max_nb_frames - len(sequence), 1629))))
+        #sequence = np.concatenate((sequence, np.zeros((max_nb_frames - len(sequence), 1086))))
     label = utils.to_categorical(dict_sign[label], num_classes=250)
     return sequence, label
 
@@ -124,10 +131,10 @@ train_dataset = train_dataset.shuffle(buffer_size=train["path"].shape[0])
 train_dataset = train_dataset.map(
     lambda filename, label: tf.py_function(
         load_npy_file, [filename, label], [tf.float32, tf.float32]),
-    num_parallel_calls=tf.data.experimental.AUTOTUNE)
-train_dataset = train_dataset.batch(batch_size)
+    num_parallel_calls=tf.data.AUTOTUNE)
+train_dataset = train_dataset.batch(batch_size, num_parallel_calls=tf.data.AUTOTUNE)
 # Prefetch the data for improved performance
-train_dataset = train_dataset.prefetch(tf.data.experimental.AUTOTUNE)
+train_dataset = train_dataset.prefetch(tf.data.AUTOTUNE)
 # %%
 # Shuffle the dataset
 val_dataset = val_dataset.shuffle(buffer_size=train["path"].shape[0])
@@ -136,12 +143,12 @@ val_dataset = val_dataset.shuffle(buffer_size=train["path"].shape[0])
 val_dataset = val_dataset.map(
     lambda filename, label: tf.py_function(
         load_npy_file, [filename, label], [tf.float32, tf.float32]),
-    num_parallel_calls=tf.data.experimental.AUTOTUNE)
-val_dataset = val_dataset.batch(batch_size)
+    num_parallel_calls=tf.data.AUTOTUNE)
+val_dataset = val_dataset.batch(batch_size, num_parallel_calls=tf.data.AUTOTUNE)
 # Prefetch the data for improved performance
-val_dataset = val_dataset.prefetch(tf.data.experimental.AUTOTUNE)
+val_dataset = val_dataset.prefetch(tf.data.AUTOTUNE)
 # %%
-optimizer = optimizers.Adamax(learning_rate=0.008)  # optimizers.SGD(learning_rate=1e-5, momentum=0.9, nesterov=True)
+optimizer = optimizers.Adam(learning_rate=0.00009)  # optimizers.SGD(learning_rate=1e-5, momentum=0.9, nesterov=True)
 
 # Instantiate a loss function.
 loss_fn = losses.CategoricalCrossentropy()
@@ -152,7 +159,6 @@ val_acc_metric = metrics.CategoricalAccuracy()
 # %%
 import time
 
-epochs = 2
 
 
 @tf.function
@@ -188,6 +194,7 @@ def custom_fit(model, epochs, train_dataset, val_dataset=None):
     train_acc_ = []
     train_loss_ = []
     val_loss_ = []
+    previsous_loss = 0
     for epoch in range(epochs):
         print("\nStart of epoch %d" % (epoch,))
         start_time = time.time()
@@ -196,6 +203,8 @@ def custom_fit(model, epochs, train_dataset, val_dataset=None):
         tqdm_bar = tqdm(train_dataset)
         losses = []
         metrics = []
+
+
         for step, (x_batch_train, y_batch_train) in enumerate(tqdm_bar):
             if x_batch_train.shape[0] != batch_size:
                 continue
@@ -208,8 +217,7 @@ def custom_fit(model, epochs, train_dataset, val_dataset=None):
             losses.append(loss_value.numpy())
             metrics.append(train_acc)
             # Display metrics at the end of each 10 batch.
-            if step % 10 == 0:
-                tqdm_bar.set_postfix(train_loss=loss_value.numpy(), train_acc=float(train_acc))
+            tqdm_bar.set_postfix(train_loss=loss_value.numpy(), train_acc=float(train_acc))
 
         # Reset training metrics at the end of each epoch
         train_acc_metric.reset_states()
@@ -229,24 +237,26 @@ def custom_fit(model, epochs, train_dataset, val_dataset=None):
                 val_loss = test_step(model, x_batch_val, y_batch_val, loss_fn, val_acc_metric, max_sequence_length)
                 losses.append(val_loss.numpy())
                 metrics.append(val_acc_metric.result())
-                if step % 10 == 0:
-                    tqdm_bar.set_postfix(val_loss=val_loss.numpy(), val_acc=float(val_acc_metric.result()))
+                tqdm_bar.set_postfix(val_loss=val_loss.numpy(), val_acc=float(val_acc_metric.result()))
             val_acc_metric.reset_states()
             val_loss_.append(np.mean(losses))
             val_acc_.append(np.mean(metrics))
+            previsous_loss = val_loss_[-1]
             print("Validation acc: %.4f ; loss: %.4f" % (np.mean(metrics), np.mean(losses)))
         print("Time taken: %.2fs" % (time.time() - start_time))
+
+        if epoch > 0 and val_loss_[-2] > previsous_loss:
+            model.save_weights(f'checkpoint/gru/model.h5')
     return train_loss_, train_acc_, val_loss_, val_acc_
 
 
 # %%
 
-epochs = 100
+epochs = 3
+
 metrics_ = custom_fit(model, epochs, train_dataset, val_dataset=val_dataset)
 
 # %%
-import matplotlib.pyplot as plt
-
 # create figure and axis objects with subplots()
 fig, ax = plt.subplots()
 # make a plot
@@ -269,4 +279,5 @@ fig.savefig('loss_acc.png',
             bbox_inches='tight')
 
 # %%
-model.save_weights("model.h5")
+tf.keras.saving.save_model(model, "model_save")
+# %%
