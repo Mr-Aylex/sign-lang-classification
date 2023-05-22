@@ -6,6 +6,8 @@ from werkzeug.utils import secure_filename
 import os
 from wtforms.validators import InputRequired
 from kubernetes import client, config
+import json
+import requests
 
 app = Flask(__name__, template_folder='templates')
 
@@ -77,7 +79,71 @@ def translate():
             # Unexpected error occurred
             print(f"Error: {e}")
     api_client.create_namespaced_pod(namespace='default', body=pod_manifest) #création de pod
-    return "Pod created"
+    pod_data = api_client.read_namespaced_pod_log(name='mpm', namespace='default')
+    df = pd.DataFrame([line.split(',') for line in pod_data.split('\n') if line])
+
+    prediction_pod_manifest = {
+        'apiVersion': 'v1',
+        'kind': 'Pod',
+        'metadata': {
+            'name': 'signaify'
+        },
+        'spec': {
+            'restartPolicy': 'Never',
+            'containers': [
+                {
+                    'name': 'signaify',
+                    'image': 'dopehat54/signaify:latest',
+                    'ports': [{'containerPort': 80}],
+                    'env': [
+                        {
+                            'name': 'DATA',
+                            'value': df.to_json(orient='records')
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+
+    try:
+        api_client.read_namespaced_pod(name='signaify', namespace='default')
+        # Pod exists, so delete it
+        api_client.delete_namespaced_pod(name='signaify', namespace='default')
+        print(f'Pod signaify in namespace default deleted successfully.')
+    except client.rest.ApiException as e:
+        if e.status == 404:
+            # Pod doesn't exist, so do nothing
+            print(f'Pod signaify in namespace default doesn\'t exist.')
+        else:
+            # Unexpected error occurred
+            print(f'Error: {e}')
+
+    api_client.create_namespaced_pod(namespace='default', body=prediction_pod_manifest)  # Create prediction Pod
+
+    # Wait for the prediction Pod to be ready
+    pod_ready = False
+    while not pod_ready:
+        try:
+            pod_info = api_client.read_namespaced_pod(name='signaify', namespace='default')
+            if pod_info.status.phase == 'Running':
+                pod_ready = True
+        except client.rest.ApiException as e:
+            if e.status == 404:
+                # Pod not found, keep waiting
+                continue
+            else:
+                # Unexpected error occurred
+                print(f'Error: {e}')
+                break
+
+    if pod_ready:
+        # Get the prediction result from the Pod
+        prediction_result = requests.get('http://localhost:80/prediction')
+        prediction = json.loads(prediction_result.text)
+        # Do something with the prediction...
+
+    return 'Prediction completed.'
 
 
 if __name__ == '__main__':

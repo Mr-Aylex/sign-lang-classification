@@ -3,8 +3,8 @@ import keras
 from keras import utils, optimizers, losses, metrics
 import numpy as np
 import pandas as pd
-#from pandarallel import pandarallel
-#pandarallel.initialize(nb_workers=15, progress_bar=True)
+# from pandarallel import pandarallel
+# pandarallel.initialize(nb_workers=15, progress_bar=True)
 from tqdm import tqdm
 import os
 from tqdm.keras import TqdmCallback
@@ -29,7 +29,7 @@ from custom_model.third import CustomModel as CustomModel3
 
 batch_size = 64
 timesteps = 100
-#features = 1086
+# features = 1086
 features = 1629
 nb_classes = len(train["sign"].unique())
 
@@ -38,8 +38,8 @@ model = CustomModel3(batch_size, timesteps, features, nb_classes)
 model(tf.zeros((batch_size, timesteps, features)))
 model.load_weights("checkpoint/gru/model1.h5")
 
-#model = tf.keras.saving.load_model("checkpoint/gru2/model.h5")
 
+# model = tf.keras.saving.load_model("checkpoint/gru2/model.h5")
 
 
 # model = CustomModel( input_layer, output_layer)
@@ -65,7 +65,6 @@ train_dataset = tf.data.Dataset.from_tensor_slices((X_train, y_train))
 val_dataset = tf.data.Dataset.from_tensor_slices((X_test, y_test))
 
 
-
 # %%
 
 def load_npy_file(filename, label):
@@ -81,13 +80,13 @@ def load_npy_file(filename, label):
     sequence = sequence[:, :, :3]
 
     sequence = np.reshape(sequence, (sequence.shape[0], 1629))
-    #sequence = np.reshape(sequence, (sequence.shape[0], 1086))
+    # sequence = np.reshape(sequence, (sequence.shape[0], 1086))
 
     if len(sequence) > max_nb_frames:
         sequence = sequence[:max_nb_frames]
     else:
         sequence = np.concatenate((sequence, np.zeros((max_nb_frames - len(sequence), 1629))))
-        #sequence = np.concatenate((sequence, np.zeros((max_nb_frames - len(sequence), 1086))))
+        # sequence = np.concatenate((sequence, np.zeros((max_nb_frames - len(sequence), 1086))))
     label = utils.to_categorical(dict_sign[label], num_classes=250)
     return sequence, label
 
@@ -160,7 +159,6 @@ val_acc_metric = metrics.CategoricalAccuracy()
 import time
 
 
-
 @tf.function
 def train_step(model, x_batch_train, y_batch_train, optimizer, loss_fn, train_acc_metric, max_sequence_length=150):
     for seq in range(timesteps // max_sequence_length):
@@ -203,7 +201,6 @@ def custom_fit(model, epochs, train_dataset, val_dataset=None):
         tqdm_bar = tqdm(train_dataset)
         losses = []
         metrics = []
-
 
         for step, (x_batch_train, y_batch_train) in enumerate(tqdm_bar):
             if x_batch_train.shape[0] != batch_size:

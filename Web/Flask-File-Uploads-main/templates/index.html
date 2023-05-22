@@ -8,13 +8,14 @@
     <title>Upload Video</title>
 </head>
 <body>
-    <div class="wrapper">
-  <h2>LANGUAGE DES SIGNES</h2>
-  <div class="box">
-    <form action="{{url_for('upload')}}"method='POST' enctype='multipart/form-data'>
-         <input type="file" name="video" accept=".mp4">
-         <input type="submit" value="Upload">
-      
-    </form>
+<div class="wrapper">
+    <h1>SignAIfy</h1>
+    <h2>RECONNAISSANCE DE LA LANGUE DES SIGNES</h2>
+    <div class="box">
+        <form action="{{url_for('upload')}}" method='POST' enctype='multipart/form-data'>
+            <input type="file" name="video" accept=".mp4">
+            <input type="submit" value="Upload">
+
+        </form>
 </body>
 </html>
