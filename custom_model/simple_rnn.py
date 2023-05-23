@@ -1,6 +1,6 @@
 import tensorflow as tf
 import keras
-from keras.layers import Masking, LSTM, Dense
+from keras.layers import SimpleRNN, Masking, Dense
 from keras import Input
 import numpy as np
 import time
@@ -10,24 +10,22 @@ from tqdm import tqdm
 class CustomModel(keras.Model):
 
     def __init__(self, batch_size, timesteps, features, nb_classes):
-        super(CustomModel, self).__init__()
+        super().__init__()
         self.batch_size = batch_size
         self.timesteps = timesteps
         self.features = features
 
-        self.input_ = Input(batch_input_shape=(batch_size, timesteps, features))
-        # Ajout d'une couche de masquage
-        self.masking = Masking(mask_value=0.)(self.input_)
-        # Ajout d'une couche LSTM
-        self.lstm = LSTM(64, stateful=True, input_dim=(timesteps, features))(self.masking)
-        # Ajout d'une couche Dense pour la prédiction
-        self.output_ = Dense(units=nb_classes, activation='softmax')(self.lstm)
+        self.masking = Masking(mask_value=0., batch_input_shape=(batch_size, timesteps, features))
 
-        self.model = keras.Model(self.input_, self.output_)
-        # self.model.compile(optimizer='adam', loss='mse', run_eagerly=True)
+        self.lstm = SimpleRNN(32, stateful=True, input_dim=(timesteps, features))
+        self.output_ = Dense(units=nb_classes, activation='softmax')
 
     def call(self, inputs, training=False, mask=None):
-        return self.model(inputs)
+
+        x = self.masking(inputs)
+        x = self.lstm(x)
+        x = self.output_(x)
+        return x
 
     @tf.function
     def train_step2(self, data):
@@ -136,3 +134,11 @@ class CustomModel(keras.Model):
                     if step % 10 == 0:
                         tqdm_bar.set_postfix(val_loss=val_loss.numpy(), val_acc=float(self.compiled_metrics.result()))
                 self.compiled_metrics.reset_states()
+
+    def custom_predict(self, test_dataset):
+        predictions = []
+        for step, x_batch_test in enumerate(test_dataset):
+            if x_batch_test.shape[0] != self.batch_size:
+                continue
+            predictions.append(self.predict(x_batch_test))
+        return np.concatenate(predictions, axis=0)

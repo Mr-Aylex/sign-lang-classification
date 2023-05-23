@@ -23,9 +23,9 @@ for i, sign in enumerate(train["sign"].unique()):
     dict_sign[sign] = i
 # %%
 
-from custom_model.first import CustomModel
-from custom_model.second import CustomModel as CustomModel2
-from custom_model.third import CustomModel as CustomModel3
+from custom_model.lstm import CustomModel
+from custom_model.simple_rnn import CustomModel as CustomModel2
+from custom_model.gru import CustomModel as CustomModel3
 
 batch_size = 64
 timesteps = 100
@@ -33,10 +33,10 @@ timesteps = 100
 features = 1629
 nb_classes = len(train["sign"].unique())
 
-model = CustomModel3(batch_size, timesteps, features, nb_classes)
+model = CustomModel2(batch_size, timesteps, features, nb_classes)
 # first call to initialize the model.
 model(tf.zeros((batch_size, timesteps, features)))
-model.load_weights("checkpoint/gru/model1.h5")
+#model.load_weights("checkpoint/gru/model1.h5")
 
 #model = tf.keras.saving.load_model("checkpoint/gru2/model.h5")
 
@@ -148,7 +148,7 @@ val_dataset = val_dataset.batch(batch_size, num_parallel_calls=tf.data.AUTOTUNE)
 # Prefetch the data for improved performance
 val_dataset = val_dataset.prefetch(tf.data.AUTOTUNE)
 # %%
-optimizer = optimizers.Adam(learning_rate=0.00009)  # optimizers.SGD(learning_rate=1e-5, momentum=0.9, nesterov=True)
+optimizer = optimizers.RMSprop(learning_rate=0.0009, momentum=0.95)  # optimizers.SGD(learning_rate=1e-5, momentum=0.9, nesterov=True)
 
 # Instantiate a loss function.
 loss_fn = losses.CategoricalCrossentropy()
@@ -246,7 +246,7 @@ def custom_fit(model, epochs, train_dataset, val_dataset=None):
         print("Time taken: %.2fs" % (time.time() - start_time))
 
         if epoch > 0 and val_loss_[-2] > previsous_loss:
-            model.save_weights(f'checkpoint/gru/model.h5')
+            model.save_weights(f'checkpoint/simple_rnn/model.h5')
     return train_loss_, train_acc_, val_loss_, val_acc_
 
 
@@ -257,26 +257,20 @@ epochs = 3
 metrics_ = custom_fit(model, epochs, train_dataset, val_dataset=val_dataset)
 
 # %%
-# create figure and axis objects with subplots()
-fig, ax = plt.subplots()
-# make a plot
-ax.plot(range(epochs), metrics_[0], color="red", marker="o")
-# set x-axis label
-ax.set_xlabel("epoch", fontsize=14)
-# set y-axis label
-ax.set_ylabel("loss", color="red", fontsize=14)
+# plot the training loss and accuracy and validation loss and accuracy
+N = np.arange(0, epochs)
+plt.style.use("ggplot")
+plt.figure(figsize=(20, 10))
+plt.plot(N, metrics_[0], label="train_loss")
+plt.plot(N, metrics_[2], label="val_loss")
+plt.plot(N, metrics_[1], label="train_acc")
+plt.plot(N, metrics_[3], label="val_acc")
+plt.title("Training Loss and Accuracy")
+plt.xlabel("Epoch #")
 
-# twin object for two different y-axis on the sample plot
-ax2 = ax.twinx()
-# make a plot with different y-axis using second axis object
-ax2.plot(range(epochs), metrics_[1], color="blue", marker="o")
-ax2.set_ylabel("accuracy", color="blue", fontsize=14)
-plt.show()
-# save the plot as a file
-fig.savefig('loss_acc.png',
-            format='png',
-            dpi=100,
-            bbox_inches='tight')
+plt.ylabel("Loss/Accuracy")
+plt.legend()
+plt.savefig("plot.png")
 
 # %%
 tf.keras.saving.save_model(model, "model_save")

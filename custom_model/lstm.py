@@ -1,6 +1,6 @@
 import tensorflow as tf
 import keras
-from keras.layers import Masking, Dense, ConvLSTM1D, Reshape, Flatten
+from keras.layers import LSTM, Masking, Dense
 from keras import Input
 import numpy as np
 import time
@@ -10,28 +10,21 @@ from tqdm import tqdm
 class CustomModel(keras.Model):
 
     def __init__(self, batch_size, timesteps, features, nb_classes):
-        super(CustomModel, self).__init__()
+        super().__init__()
         self.batch_size = batch_size
         self.timesteps = timesteps
         self.features = features
 
-        self.input_ = Input(batch_input_shape=(batch_size, timesteps, features))
-
-        # Ajout d'une couche de masquage
-        self.masking = Masking(mask_value=0.)(self.input_)
-        self.reshape = Reshape((timesteps, 3, features // 3))(self.masking)
-        # Ajout d'une couche LSTM
-        self.lstm = ConvLSTM1D(filters=64, kernel_size=1, stateful=True, input_dim=(timesteps, 3, features//3))(self.reshape)
-
-        self.flatten = Flatten()(self.lstm)
-        # Ajout d'une couche Dense pour la prédiction
-        self.output_ = Dense(units=nb_classes, activation='softmax')(self.flatten)
-
-        self.model = keras.Model(self.input_, self.output_)
-        # self.model.compile(optimizer='adam', loss='mse', run_eagerly=True)
+        self.masking = Masking(mask_value=0., batch_input_shape=(batch_size, timesteps, features))
+        self.lstm = LSTM(32, stateful=True, input_dim=(timesteps, features))
+        self.output_ = Dense(units=nb_classes, activation='softmax')
 
     def call(self, inputs, training=False, mask=None):
-        return self.model(inputs)
+
+        x = self.masking(inputs)
+        x = self.lstm(x)
+        x = self.output_(x)
+        return x
 
     @tf.function
     def train_step2(self, data):
