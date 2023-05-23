@@ -42,7 +42,6 @@ def delete_all_files(bucket_name):
 
 
 for object in S3.Bucket(BUCKET_NAME).objects.all():
-    download_file(BUCKET_NAME,object.key)
+    print(object)
 
-delete_all_files(BUCKET_NAME)
 

@@ -10,7 +10,6 @@ CREDENTIAL_FILE = pd.read_csv("Theo-Dalex_credentials.csv")
 ACCESS_KEY = CREDENTIAL_FILE['Nom d\'utilisateur'][0]
 SECRET_KEY = CREDENTIAL_FILE['Mot de passe'][0]
 
-
 BUCKET_NAME = "sign-video"
 
 S3 = bt.resource(
@@ -19,7 +18,7 @@ S3 = bt.resource(
     aws_secret_access_key=SECRET_KEY,
     config=Config(
         region_name='eu-west-3',
-        )
+    )
 )
 
 
@@ -28,6 +27,7 @@ def download_file(bucket_name, file_name):
     S3.Bucket(bucket_name).download_file(Key=file_name, Filename=file_name)
     logging.info('Download complete')
 
+
 def delete_all_files(bucket_name):
     logging.info('Deleting all files from bucket %s', bucket_name)
     bucket = S3.Bucket(bucket_name)
@@ -35,11 +35,11 @@ def delete_all_files(bucket_name):
     logging.info('Delete complete')
 
 
-
 logging.error("test")
 pd.set_option('display.max_rows', None)
 mp_drawing = mp.solutions.drawing_utils
 mp_holistic = mp.solutions.holistic
+
 
 def get_right_hand_landmark_indexes(hand, frame):
     index_list = ['WRIST', 'THUMB_CMC', 'THUMB_MCP', 'THUMB_IP', 'THUMB_TIP', 'INDEX_FINGER_MCP', 'INDEX_FINGER_PIP',
@@ -50,12 +50,18 @@ def get_right_hand_landmark_indexes(hand, frame):
     right_hand_landmarks = []
     for part in index_list:
         if hand.right_hand_landmarks:
-            right_hand_landmarks.append([frame, f"{frame}-right_hand-{index_list.index(part)}", "right_hand", index_list.index(part), hand.right_hand_landmarks.landmark[mp_holistic.HandLandmark(index_list.index(part))].x, hand.right_hand_landmarks.landmark[mp_holistic.HandLandmark(index_list.index(part))].y, hand.right_hand_landmarks.landmark[mp_holistic.HandLandmark(index_list.index(part))].z])
+            right_hand_landmarks.append(
+                [frame, f"{frame}-right_hand-{index_list.index(part)}", "right_hand", index_list.index(part),
+                 hand.right_hand_landmarks.landmark[mp_holistic.HandLandmark(index_list.index(part))].x,
+                 hand.right_hand_landmarks.landmark[mp_holistic.HandLandmark(index_list.index(part))].y,
+                 hand.right_hand_landmarks.landmark[mp_holistic.HandLandmark(index_list.index(part))].z])
 
         else:
-            right_hand_landmarks.append([frame, f"{frame}-right_hand-{index_list.index(part)}", "right_hand",index_list.index(part),  0, 0, 0])
+            right_hand_landmarks.append(
+                [frame, f"{frame}-right_hand-{index_list.index(part)}", "right_hand", index_list.index(part), 0, 0, 0])
 
     return right_hand_landmarks
+
 
 def get_left_hand_landmark_indexes(hand, frame):
     index_list = ['WRIST', 'THUMB_CMC', 'THUMB_MCP', 'THUMB_IP', 'THUMB_TIP', 'INDEX_FINGER_MCP', 'INDEX_FINGER_PIP',
@@ -66,32 +72,48 @@ def get_left_hand_landmark_indexes(hand, frame):
     left_hand_landmarks = []
     for part in index_list:
         if hand.left_hand_landmarks:
-            left_hand_landmarks.append([frame, f"{frame}-left_hand-{index_list.index(part)}", "left_hand", index_list.index(part), hand.left_hand_landmarks.landmark[mp_holistic.HandLandmark(index_list.index(part))].x, hand.left_hand_landmarks.landmark[mp_holistic.HandLandmark(index_list.index(part))].y, hand.left_hand_landmarks.landmark[mp_holistic.HandLandmark(index_list.index(part))].z])
+            left_hand_landmarks.append(
+                [frame, f"{frame}-left_hand-{index_list.index(part)}", "left_hand", index_list.index(part),
+                 hand.left_hand_landmarks.landmark[mp_holistic.HandLandmark(index_list.index(part))].x,
+                 hand.left_hand_landmarks.landmark[mp_holistic.HandLandmark(index_list.index(part))].y,
+                 hand.left_hand_landmarks.landmark[mp_holistic.HandLandmark(index_list.index(part))].z])
 
         else:
-            left_hand_landmarks.append([frame, f"{frame}-left_hand-{index_list.index(part)}", "left_hand",index_list.index(part),  0, 0, 0])
+            left_hand_landmarks.append(
+                [frame, f"{frame}-left_hand-{index_list.index(part)}", "left_hand", index_list.index(part), 0, 0, 0])
 
     return left_hand_landmarks
 
-def get_post_landmark_indexes(pose, frame):
-    index_list = ['NOSE', 'LEFT_EYE_INNER', 'LEFT_EYE', 'LEFT_EYE_OUTER', 'RIGHT_EYE_INNER', 'RIGHT_EYE', 'RIGHT_EYE_OUTER', 'LEFT_EAR', 'RIGHT_EAR', 'MOUTH_LEFT', 'MOUTH_RIGHT', 'LEFT_SHOULDER', 'RIGHT_SHOULDER', 'LEFT_ELBOW', 'RIGHT_ELBOW', 'LEFT_WRIST', 'RIGHT_WRIST', 'LEFT_PINKY', 'RIGHT_PINKY', 'LEFT_INDEX', 'RIGHT_INDEX', 'LEFT_THUMB', 'RIGHT_THUMB', 'LEFT_HIP', 'RIGHT_HIP', 'LEFT_KNEE', 'RIGHT_KNEE', 'LEFT_ANKLE', 'RIGHT_ANKLE', 'LEFT_HEEL', 'RIGHT_HEEL', 'LEFT_FOOT_INDEX', 'RIGHT_FOOT_INDEX']
 
+def get_post_landmark_indexes(pose, frame):
+    index_list = ['NOSE', 'LEFT_EYE_INNER', 'LEFT_EYE', 'LEFT_EYE_OUTER', 'RIGHT_EYE_INNER', 'RIGHT_EYE',
+                  'RIGHT_EYE_OUTER', 'LEFT_EAR', 'RIGHT_EAR', 'MOUTH_LEFT', 'MOUTH_RIGHT', 'LEFT_SHOULDER',
+                  'RIGHT_SHOULDER', 'LEFT_ELBOW', 'RIGHT_ELBOW', 'LEFT_WRIST', 'RIGHT_WRIST', 'LEFT_PINKY',
+                  'RIGHT_PINKY', 'LEFT_INDEX', 'RIGHT_INDEX', 'LEFT_THUMB', 'RIGHT_THUMB', 'LEFT_HIP', 'RIGHT_HIP',
+                  'LEFT_KNEE', 'RIGHT_KNEE', 'LEFT_ANKLE', 'RIGHT_ANKLE', 'LEFT_HEEL', 'RIGHT_HEEL', 'LEFT_FOOT_INDEX',
+                  'RIGHT_FOOT_INDEX']
 
     pose_landmarks = []
     for part in index_list:
         if pose.pose_landmarks:
-            pose_landmarks.append([frame, f"{frame}-pose-{index_list.index(part)}", "pose", index_list.index(part), pose.pose_landmarks.landmark[mp_holistic.PoseLandmark(index_list.index(part))].x, pose.pose_landmarks.landmark[mp_holistic.PoseLandmark(index_list.index(part))].y, pose.pose_landmarks.landmark[mp_holistic.PoseLandmark(index_list.index(part))].z])
+            pose_landmarks.append([frame, f"{frame}-pose-{index_list.index(part)}", "pose", index_list.index(part),
+                                   pose.pose_landmarks.landmark[mp_holistic.PoseLandmark(index_list.index(part))].x,
+                                   pose.pose_landmarks.landmark[mp_holistic.PoseLandmark(index_list.index(part))].y,
+                                   pose.pose_landmarks.landmark[mp_holistic.PoseLandmark(index_list.index(part))].z])
 
         else:
-            pose_landmarks.append([frame, f"{frame}-pose-{index_list.index(part)}", "pose",index_list.index(part),  0, 0, 0])
+            pose_landmarks.append(
+                [frame, f"{frame}-pose-{index_list.index(part)}", "pose", index_list.index(part), 0, 0, 0])
 
     return pose_landmarks
+
 
 def get_face_landmark_indexes(face, frame):
     face_landmarks = []
     if face.face_landmarks:
         for i in range(len(face.face_landmarks.landmark)):
-            face_landmarks.append([frame, f"{frame}-face-{i}", "face", i, face.face_landmarks.landmark[i].x, face.face_landmarks.landmark[i].y, face.face_landmarks.landmark[i].z])
+            face_landmarks.append([frame, f"{frame}-face-{i}", "face", i, face.face_landmarks.landmark[i].x,
+                                   face.face_landmarks.landmark[i].y, face.face_landmarks.landmark[i].z])
     else:
         for i in range(len(face.face_landmarks.landmark)):
             face_landmarks.append([frame, f"{frame}-face-{i}", "face", i, 0, 0, 0])
@@ -164,10 +186,9 @@ def Mediapipe_holistic(video):
 video = ""
 for object in S3.Bucket(BUCKET_NAME).objects.all():
     video = object.key
-    download_file(BUCKET_NAME,object.key)
+    download_file(BUCKET_NAME, object.key)
 
 delete_all_files(BUCKET_NAME)
-
 
 df = Mediapipe_holistic(video)
 print(df.head(1000))
