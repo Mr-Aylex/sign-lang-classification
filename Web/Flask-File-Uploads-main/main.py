@@ -7,11 +7,45 @@ import os
 from wtforms.validators import InputRequired
 from kubernetes import client, config
 import json
+import time
 import requests
+import binascii
+import gzip
+import base64
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', None)
+pd.set_option('display.max_colwidth', -1)
+app = Flask(__name__)
+CREDENTIAL_FILE = pd.read_csv("../../Web/Theo-Dalex_credentials.csv")
+ACCESS_KEY = CREDENTIAL_FILE['Nom d\'utilisateur'][0]
+SECRET_KEY = CREDENTIAL_FILE['Mot de passe'][0]
 
-app = Flask(__name__, template_folder='templates')
+BUCKET_NAME = "sign-video"
+df = pd.DataFrame()
 
-app.config['UPLOAD_FOLDER'] = 'static/files'
+@app.route('/dataframe', methods=['GET'])
+def get_dataframe():
+    global df
+    # Generate or fetch the big dataframe
+    big_dataframe = df
+
+    # Convert the dataframe to JSON
+    dataframe_json = big_dataframe.to_json()
+
+    # Return the JSON response
+    return jsonify(dataframe_json)
+
+def wait_for_pod_completion(api_client, pod_name, namespace):
+    while True:
+        try:
+            pod = api_client.read_namespaced_pod(pod_name, namespace)
+            if pod.status.phase in ["Running", "Succeeded"]:
+                break  # Pod is in the desired state, exit the loop
+        except ApiException as e:
+            print("Exception when retrieving pod status: %s\n" % e)
+        time.sleep(25)
+
 
 class UploadFileForm(FlaskForm):
     file = FileField("File", validators=[InputRequired()])
@@ -79,9 +113,25 @@ def translate():
             # Unexpected error occurred
             print(f"Error: {e}")
     api_client.create_namespaced_pod(namespace='default', body=pod_manifest) #création de pod
-    pod_data = api_client.read_namespaced_pod_log(name='mpm', namespace='default')
-    df = pd.DataFrame([line.split(',') for line in pod_data.split('\n') if line])
+    wait_for_pod_completion(api_client, 'mpm', 'default')
 
+    pod_data = api_client.read_namespaced_pod_log(name='mpm', namespace='default')
+    filtered_lines = [line for line in pod_data.splitlines() if
+                      "ERROR:root:test" not in line and "INFO: Created TensorFlow Lite XNNPACK delegate for CPU" not in line]
+    lines = [line.split(',') for line in filtered_lines if line]
+
+    if lines:
+        columns = lines[0]
+        data = lines[1:]
+        global df
+        df = pd.DataFrame(data, columns=columns)
+    else:
+        df = pd.DataFrame(columns=['Log'])
+    print(df)
+    # print(df)
+    # compressed_data = gzip.compress(df.to_json(orient='records').encode('utf-8'))
+    #
+    # encoded_data = base64.b64encode(compressed_data).decode('utf-8')
     prediction_pod_manifest = {
         'apiVersion': 'v1',
         'kind': 'Pod',
@@ -94,13 +144,13 @@ def translate():
                 {
                     'name': 'signaify',
                     'image': 'dopehat54/signaify:latest',
-                    'ports': [{'containerPort': 80}],
-                    'env': [
-                        {
-                            'name': 'DATA',
-                            'value': df.to_json(orient='records')
+                    'ports': [{'containerPort': 90}],
+                    'resources': {
+                        'limits': {
+                            'cpu': '2',
+                            'memory': '2Gi'
                         }
-                    ]
+                    }
                 }
             ]
         }
@@ -139,7 +189,7 @@ def translate():
 
     if pod_ready:
         # Get the prediction result from the Pod
-        prediction_result = requests.get('http://localhost:80/prediction')
+        prediction_result = requests.get('http://localhost:90')
         prediction = json.loads(prediction_result.text)
         # Do something with the prediction...
 
