@@ -13,30 +13,15 @@ logging.error("-----------------------------------------------------------------
 
 logging.getLogger().setLevel(logging.ERROR)
 
-
+url = 'http://localhost:5000/dataframe'
 df = pd.DataFrame()
-logging.error("---------------------------------------------------------------------------")
-while df.empty:
-    logging.error(df)
-    logging.error("loop")
-    logging.error(requests.get('http://127.0.0.1:5000/dataframe'))
-    try:
-        logging.error("try")
-        logging.error("---------------------------------------------------------------------------")
-        response = requests.get('http://127.0.0.1:5000/dataframe')
-        logging.error(response)
-        logging.error("---------------------------------------------------------------------------")
-        response_data = response.json()
-        logging.error(response_data)
-        logging.error("---------------------------------------------------------------------------")
-        df = pd.DataFrame(response_data)
-        logging.error(df)
-        logging.error("---------------------------------------------------------------------------")
-        break
-    except:
-        logging.error("sleep")
-        time.sleep(5)
-        continue
+
+response = requests.get(url)
+logging.error(response.status_code == 200)
+if response.status_code == 200:
+    data = response.json()
+    df = pd.DataFrame.from_dict(data)
+
 logging.error("afterloop")
 train = pd.read_csv("train.csv")
 dict_sign = {}

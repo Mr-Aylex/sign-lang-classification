@@ -12,12 +12,9 @@ import requests
 import binascii
 import gzip
 import base64
-pd.set_option('display.max_rows', None)
-pd.set_option('display.max_columns', None)
-pd.set_option('display.width', None)
-pd.set_option('display.max_colwidth', -1)
+
 app = Flask(__name__)
-CREDENTIAL_FILE = pd.read_csv("../../Web/Theo-Dalex_credentials.csv")
+CREDENTIAL_FILE = pd.read_csv("Theo-Dalex_credentials.csv")
 ACCESS_KEY = CREDENTIAL_FILE['Nom d\'utilisateur'][0]
 SECRET_KEY = CREDENTIAL_FILE['Mot de passe'][0]
 
@@ -77,7 +74,7 @@ def upload():
 
 @app.route('/translate', methods=['GET', "POST"])
 def translate():
-    config.load_kube_config()
+    config.load_incluster_config()
 
     # Create a Kubernetes API client
     api_client = client.CoreV1Api()

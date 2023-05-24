@@ -7,8 +7,8 @@ spec:
     app: web
   ports:
   - protocol: "TCP"
-    port: 5000
-    targetPort: 5000
+    port: 6000
+    targetPort: 6001
   type: LoadBalancer
 
 ---
@@ -31,4 +31,4 @@ spec:
         image: dopehat54/web:latest
         imagePullPolicy: Always
         ports:
-        - containerPort: 5000
+        - containerPort: 6001

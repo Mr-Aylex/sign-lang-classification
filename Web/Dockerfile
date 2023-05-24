@@ -3,7 +3,7 @@ RUN mkdir /app
 WORKDIR /app
 COPY requirements.txt /app/requirements.txt
 RUN pip install -r requirements.txt
-COPY Flask-File-Uploads-main /app
+COPY . /app
 
-EXPOSE 5000
-CMD ["python", "/app/main.py"]
+EXPOSE 6001
+CMD ["python", "/app/Flask-File-Uploads-main/main.py"]
