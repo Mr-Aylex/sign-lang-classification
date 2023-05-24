@@ -3,8 +3,6 @@ import keras
 from keras import utils, optimizers, losses, metrics
 import numpy as np
 import pandas as pd
-# from pandarallel import pandarallel
-# pandarallel.initialize(nb_workers=15, progress_bar=True)
 from tqdm import tqdm
 import os
 from tqdm.keras import TqdmCallback
@@ -33,10 +31,10 @@ timesteps = 100
 features = 1629
 nb_classes = len(train["sign"].unique())
 
-model = CustomModel2(batch_size, timesteps, features, nb_classes)
+model = CustomModel(batch_size, timesteps, features, nb_classes)
 # first call to initialize the model.
 model(tf.zeros((batch_size, timesteps, features)))
-#model.load_weights("checkpoint/gru/model1.h5")
+#model.load_weights("checkpoint/gru/model1_pretrained.h5")
 
 
 # model = tf.keras.saving.load_model("checkpoint/gru2/model.h5")
@@ -147,7 +145,7 @@ val_dataset = val_dataset.batch(batch_size, num_parallel_calls=tf.data.AUTOTUNE)
 # Prefetch the data for improved performance
 val_dataset = val_dataset.prefetch(tf.data.AUTOTUNE)
 # %%
-optimizer = optimizers.RMSprop(learning_rate=0.0009, momentum=0.95)  # optimizers.SGD(learning_rate=1e-5, momentum=0.9, nesterov=True)
+optimizer = optimizers.Adam(learning_rate=0.0009)  # optimizers.SGD(learning_rate=1e-5, momentum=0.9, nesterov=True)
 
 # Instantiate a loss function.
 loss_fn = losses.CategoricalCrossentropy()
@@ -243,13 +241,13 @@ def custom_fit(model, epochs, train_dataset, val_dataset=None):
         print("Time taken: %.2fs" % (time.time() - start_time))
 
         if epoch > 0 and val_loss_[-2] > previsous_loss:
-            model.save_weights(f'checkpoint/simple_rnn/model.h5')
+            model.save_weights(f'checkpoint/lstm/model{epoch}.h5')
     return train_loss_, train_acc_, val_loss_, val_acc_
 
 
 # %%
 
-epochs = 3
+epochs = 150
 
 metrics_ = custom_fit(model, epochs, train_dataset, val_dataset=val_dataset)
 
