@@ -7,7 +7,7 @@ spec:
     app: web
   ports:
   - protocol: "TCP"
-    port: 6000
+    port: 6001
     targetPort: 6001
   type: LoadBalancer
 
