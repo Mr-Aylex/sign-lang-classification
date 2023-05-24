@@ -5,6 +5,8 @@ import time
 import pandas as pd
 from botocore.config import Config
 import boto3 as bt
+logging.getLogger().setLevel(logging.ERROR)
+
 
 CREDENTIAL_FILE = pd.read_csv("Theo-Dalex_credentials.csv")
 ACCESS_KEY = CREDENTIAL_FILE['Nom d\'utilisateur'][0]
@@ -35,7 +37,6 @@ def delete_all_files(bucket_name):
     logging.info('Delete complete')
 
 
-logging.error("test")
 pd.set_option('display.max_rows', None)
 mp_drawing = mp.solutions.drawing_utils
 mp_holistic = mp.solutions.holistic
@@ -115,7 +116,7 @@ def get_face_landmark_indexes(face, frame):
             face_landmarks.append([frame, f"{frame}-face-{i}", "face", i, face.face_landmarks.landmark[i].x,
                                    face.face_landmarks.landmark[i].y, face.face_landmarks.landmark[i].z])
     else:
-        for i in range(len(face.face_landmarks.landmark)):
+        for i in range(0, 468):
             face_landmarks.append([frame, f"{frame}-face-{i}", "face", i, 0, 0, 0])
     return face_landmarks
 
@@ -183,14 +184,12 @@ def Mediapipe_holistic(video):
     return df
 
 
-video = ""
-for object in S3.Bucket(BUCKET_NAME).objects.all():
-    video = object.key
-    download_file(BUCKET_NAME, object.key)
+video = "WIN_20230427_12_27_08_Pro.mp4"
+# for object in S3.Bucket(BUCKET_NAME).objects.all():
+#     video = object.key
+#     download_file(BUCKET_NAME, object.key)
 
-delete_all_files(BUCKET_NAME)
+# delete_all_files(BUCKET_NAME)
 
 df = Mediapipe_holistic(video)
-print(df.head(1000))
-logging.error("test finished")
-print("test finished")
+print(df[:5].to_string(index=False))

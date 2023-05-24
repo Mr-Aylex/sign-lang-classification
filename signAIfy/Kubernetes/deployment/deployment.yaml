@@ -7,7 +7,7 @@ spec:
     app: signaify
   ports:
   - protocol: "TCP"
-    port: 6000
+    port: 7000
     targetPort: 5000
   type: LoadBalancer
 
@@ -21,4 +21,4 @@ spec:
   - name: signaify
     image: dopehat54/signaify:latest
     ports:
-    - containerPort: 80
+    - containerPort: 90
