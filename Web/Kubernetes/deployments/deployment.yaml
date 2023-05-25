@@ -17,10 +17,6 @@ kind: Deployment
 metadata:
   name: web
 spec:
-  volumes:
-    - name: my-volume
-      persistentVolumeClaim:
-        claimName: my-pvc
   selector:
     matchLabels:
       app: web
@@ -30,6 +26,10 @@ spec:
       labels:
         app: web
     spec:
+      volumes:
+      - name: my-volume
+        persistentVolumeClaim:
+          claimName: my-pvc
       containers:
       - name: web
         image: dopehat54/web:latest
