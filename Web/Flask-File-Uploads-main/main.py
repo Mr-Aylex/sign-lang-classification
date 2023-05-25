@@ -118,7 +118,21 @@ def translate():
                 {
                     'name': 'mpm',
                     'image': 'dopehat54/mpm:latest',
-                    'ports': [{'containerPort': 80}]
+                    'ports': [{'containerPort': 80}],
+                    'volumeMounts': [
+                        {
+                            'mountPath': '/path/data/',
+                            'name': 'my-volume'
+                        }
+                    ]
+                }
+            ],
+            'volumes': [
+                {
+                    'name': 'my-volume',
+                    "persistentVolumeClaim": {
+                        "claimName": "my-pvc"
+                    }
                 }
             ]
         }
@@ -127,42 +141,19 @@ def translate():
         api_client.read_namespaced_pod(name="mpm", namespace="default")
         # Pod exists, so delete it
         api_client.delete_namespaced_pod(name="mpm", namespace="default")
-        print(f"Pod mpm in namespace default deleted successfully.")
+        logging.error(f"Pod mpm in namespace default deleted successfully.")
     except client.rest.ApiException as e:
         if e.status == 404:
             # Pod doesn't exist, so do nothing
-            print(f"Pod mpm in namespace default doesn't exist.")
+            logging.error(f"Pod mpm in namespace default doesn't exist.")
         else:
             # Unexpected error occurred
-            print(f"Error: {e}")
+            logging.error(f"Error: {e}")
     api_client.create_namespaced_pod(namespace='default', body=pod_manifest) #création de pod
     wait_for_pod_completion(api_client, 'mpm', 'default')
 
-    pod_data = api_client.read_namespaced_pod_log(name='mpm', namespace='default')
-    filtered_lines = [line for line in pod_data.splitlines() if
-                      "ERROR:root:test" not in line and "INFO: Created TensorFlow Lite XNNPACK delegate for CPU" not in line]
-    lines = [line.split(',') for line in filtered_lines if line]
 
-    if lines:
-        columns = lines[0]
-        data = lines[1:]
-        global df
-        df = pd.DataFrame(data, columns=columns)
-    else:
-        df = pd.DataFrame(columns=['Log'])
 
-    df_json = df.to_json(orient='records')
-
-    # Save JSON to file
-    output_file = STORAGE_PATH + 'data.json'
-    with open(output_file, 'w') as file:
-        file.write(df_json)
-
-    print(f"DataFrame saved as JSON at {output_file}")
-    # print(df)
-    # compressed_data = gzip.compress(df.to_json(orient='records').encode('utf-8'))
-    #
-    # encoded_data = base64.b64encode(compressed_data).decode('utf-8')
     prediction_pod_manifest = {
         'apiVersion': 'v1',
         'kind': 'Pod',
@@ -238,6 +229,7 @@ def translate():
         # Do something with the prediction...
 
     return 'Prediction completed.'
+
 
 
 if __name__ == '__main__':

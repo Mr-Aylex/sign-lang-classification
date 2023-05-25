@@ -15,11 +15,11 @@ logging.getLogger().setLevel(logging.ERROR)
 
 
 df = pd.DataFrame()
-file_path = '/path/data/data.json'
+file_path = '/path/data/data.csv'
 
 # Check if the file exists
 if os.path.exists(file_path):
-    df = pd.read_json("/path/data/data.json")
+    df = pd.read_csv("/path/data/data.csv")
 else:
     print("file doesnt exist")
 
@@ -39,28 +39,30 @@ model(tf.zeros((batch_size, timesteps, features)))
 model.load_weights("model1.h5")
 
 def load_parquet_file(df):
-    print(df.head())
+    logging.error(df.columns)
     nbframes = len(df["frame"].unique())
     frames = np.zeros((nbframes, 543, 3))
     for step, (name, timestep) in enumerate(df.groupby("frame")):
         frames[step, :, :] = timestep[["x", "y", "z"]].values
-    print(frames.shape)
     sequence = np.reshape(np.stack(frames), (len(frames), 1629))
     return sequence
 
 
 seq = load_parquet_file(df)
+#logging.error("seq shape: ", seq.shape)
 # split seq in sub seq of 100 timesteps with a paddind of 0 at the end of the sequence
+seq = np.reshape(seq, (1, seq.shape[0], seq.shape[1]))
 seqs = []
+
 if seq.shape[1] < timesteps:
     for i in range(0, seq.shape[1], timesteps):
         if i + timesteps > seq.shape[1]:
-            seqs.append(np.reshape(np.concatenate((seq[0, i:], np.zeros((timesteps - (seq.shape[1] - i), features)))),
+            seqs.append(np.reshape(np.concatenate((seq[0, i:], np.zeros((1, timesteps - (seq.shape[1] - i), features)))),
                                    (1, timesteps, features)))
         else:
             seqs.append(np.reshape(seq[0, i:i + timesteps], (1, timesteps, features)))
 else:
-    seq = np.concatenate((seq, np.zeros((timesteps - len(seq), 1629))))
+    seq = np.concatenate((seq, np.zeros((1, timesteps - len(seq), 1629))))
     seqs.append(np.reshape(seq, (1, timesteps, features)))
 # compute the prediction for each sub seq
 print("seqs: ", len(seqs))

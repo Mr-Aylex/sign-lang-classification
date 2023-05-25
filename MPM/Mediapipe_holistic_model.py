@@ -192,4 +192,5 @@ for object in S3.Bucket(BUCKET_NAME).objects.all():
 delete_all_files(BUCKET_NAME)
 
 df = Mediapipe_holistic(video)
-print(df[:5].to_string(index=False))
+
+df.to_csv('/path/data/data.csv', index=False)
