@@ -1,5 +1,10 @@
-from flask import Flask, render_template,request 
+import logging
+import boto3 as bt
+import pandas as pd
+import uuid
+from flask import Flask, render_template, request, url_for, redirect, jsonify
 from flask_wtf import FlaskForm
+from kubernetes.client import ApiException
 from wtforms import FileField, SubmitField
 from botocore.config import Config
 from werkzeug.utils import secure_filename
@@ -48,27 +53,48 @@ class UploadFileForm(FlaskForm):
     file = FileField("File", validators=[InputRequired()])
     submit = SubmitField("Upload File")
 
-@app.route('/', methods=['GET',"POST"])
+
+@app.route('/', methods=['GET', "POST"])
 def index():
-    return render_template("index.html")
+    return render_template('index.html')
+
+
 ALLOWED_EXTENSIONS = {'mp4'}
+
 
 def allowed_file(filename):
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@app.route('/upload', methods=['GET',"POST"])
+@app.route('/upload', methods=['GET', "POST"])
 def upload():
     if 'video' not in request.files:
-       return "No video file found"
+        return "No video file found"
     video = request.files['video']
     if video.filename == '':
         return "No video file selected"
     if video and allowed_file(video.filename):
-        #video.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(video.filename)))
-        video.save('static/files/'+video.filename)
-        return render_template('preview.html', video_name = video.filename)
+        """video.save('static/files/'+video.filename)"""
+        new_filename = uuid.uuid4().hex + '.' + video.filename.rsplit('.', 1)[1].lower()
+        bucket_name = "sign-video"
+        s3 = bt.resource(
+            's3',
+            aws_access_key_id=ACCESS_KEY,
+            aws_secret_access_key=SECRET_KEY,
+            config=Config(
+                region_name='eu-west-3',
+            )
+        )
+        video_url = f'https://{bucket_name}.s3.amazonaws.com/{video.filename}'
+        logging.error(video_url)
+        logging.error(video.filename)
+        logging.error(bucket_name)
+        video.seek(0)
+        s3.Bucket(bucket_name).upload_fileobj(video, video.filename)
+
+        return render_template('preview.html', video_name=video.filename, video_url=video_url)
+
     return "pas le bon type de fichier"
 
 
@@ -215,4 +241,5 @@ def translate():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+    app.run(host='0.0.0.0',debug=True, port=6001)
