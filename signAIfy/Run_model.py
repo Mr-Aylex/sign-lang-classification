@@ -13,14 +13,15 @@ logging.error("-----------------------------------------------------------------
 
 logging.getLogger().setLevel(logging.ERROR)
 
-url = 'http://localhost:5000/dataframe'
-df = pd.DataFrame()
 
-response = requests.get(url)
-logging.error(response.status_code == 200)
-if response.status_code == 200:
-    data = response.json()
-    df = pd.DataFrame.from_dict(data)
+df = pd.DataFrame()
+file_path = '/path/data/data.json'
+
+# Check if the file exists
+if os.path.exists(file_path):
+    df = pd.read_json("/path/data/data.json")
+else:
+    print("file doesnt exist")
 
 logging.error("afterloop")
 train = pd.read_csv("train.csv")

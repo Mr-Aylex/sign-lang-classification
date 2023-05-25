@@ -22,3 +22,4 @@ spec:
     image: dopehat54/signaify:latest
     ports:
     - containerPort: 90
+

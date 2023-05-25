@@ -17,6 +17,10 @@ kind: Deployment
 metadata:
   name: web
 spec:
+  volumes:
+    - name: my-volume
+      persistentVolumeClaim:
+        claimName: my-pvc
   selector:
     matchLabels:
       app: web
@@ -32,3 +36,6 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 6001
+        volumeMounts:
+        - mountPath: /path/data/
+          name: my-volume

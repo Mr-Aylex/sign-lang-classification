@@ -184,12 +184,12 @@ def Mediapipe_holistic(video):
     return df
 
 
-video = "WIN_20230427_12_27_08_Pro.mp4"
-# for object in S3.Bucket(BUCKET_NAME).objects.all():
-#     video = object.key
-#     download_file(BUCKET_NAME, object.key)
+#video = "WIN_20230427_12_27_08_Pro.mp4"
+for object in S3.Bucket(BUCKET_NAME).objects.all():
+    video = object.key
+    download_file(BUCKET_NAME, object.key)
 
-# delete_all_files(BUCKET_NAME)
+delete_all_files(BUCKET_NAME)
 
 df = Mediapipe_holistic(video)
 print(df[:5].to_string(index=False))

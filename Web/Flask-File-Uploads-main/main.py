@@ -14,10 +14,10 @@ import gzip
 import base64
 
 app = Flask(__name__)
-CREDENTIAL_FILE = pd.read_csv("Theo-Dalex_credentials.csv")
+CREDENTIAL_FILE = pd.read_csv("/app/Theo-Dalex_credentials.csv")
 ACCESS_KEY = CREDENTIAL_FILE['Nom d\'utilisateur'][0]
 SECRET_KEY = CREDENTIAL_FILE['Mot de passe'][0]
-
+STORAGE_PATH = "/path/data/"
 BUCKET_NAME = "sign-video"
 df = pd.DataFrame()
 
@@ -124,7 +124,15 @@ def translate():
         df = pd.DataFrame(data, columns=columns)
     else:
         df = pd.DataFrame(columns=['Log'])
-    print(df)
+
+    df_json = df.to_json(orient='records')
+
+    # Save JSON to file
+    output_file = STORAGE_PATH + 'data.json'
+    with open(output_file, 'w') as file:
+        file.write(df_json)
+
+    print(f"DataFrame saved as JSON at {output_file}")
     # print(df)
     # compressed_data = gzip.compress(df.to_json(orient='records').encode('utf-8'))
     #
@@ -147,12 +155,25 @@ def translate():
                             'cpu': '2',
                             'memory': '2Gi'
                         }
+                    },
+                    'volumeMounts': [
+                        {
+                            'mountPath': '/path/data/',
+                            'name': 'my-volume'
+                        }
+                    ]
+                }
+            ],
+            'volumes': [
+                {
+                    'name': 'my-volume',
+                    "persistentVolumeClaim": {
+                        "claimName": "my-pvc"
                     }
                 }
             ]
         }
     }
-
     try:
         api_client.read_namespaced_pod(name='signaify', namespace='default')
         # Pod exists, so delete it

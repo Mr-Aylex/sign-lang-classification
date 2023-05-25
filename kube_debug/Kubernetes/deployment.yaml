@@ -10,7 +10,7 @@ spec:
         claimName: my-pvc
   containers:
   - name: test
-    image: mraylex/test-python:latest
+    image: dopehat54/test-python:latest
     ports:
     - containerPort: 80
     volumeMounts:
