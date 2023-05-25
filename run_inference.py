@@ -7,7 +7,7 @@ from custom_model.gru import CustomModel as CustomModel3
 
 # %%
 DATA_FOLDER = "/mnt/e/sign-lang-data/"
-train = pd.read_csv(os.path.join(DATA_FOLDER, "train_processed.csv"))
+train = pd.read_csv(os.path.join("train_processed.csv"))
 dict_sign = {}
 for i, sign in enumerate(train["sign"].unique()):
     dict_sign[i] = sign
@@ -22,7 +22,7 @@ nb_classes = 250
 model = CustomModel3(batch_size, timesteps, features, nb_classes)
 # first call to initialize the model.
 model(tf.zeros((batch_size, timesteps, features)))
-model.load_weights("checkpoint/gru/model1.h5")
+model.load_weights("checkpoint/gru/model1_pretrained.h5")
 
 
 # define the sequence
@@ -43,26 +43,30 @@ def load_parquet_file(filename):
     frames = np.zeros((nbframes, 543, 3))
     for step, (name, timestep) in enumerate(df.groupby("frame")):
         frames[step, :, :] = timestep[["x", "y", "z"]].values
-    print(frames.shape)
     sequence = np.reshape(np.stack(frames), (len(frames), 1629))
     return sequence
 
-seq = load_parquet_file(f"{DATA_FOLDER}/train_landmark_files/26734/3829304.parquet")
-print(train[train["path"] == "train_landmark_files/26734/3829304.parquet"]["sign"])
+seq = load_parquet_file(f"8821136.parquet")
+print(train[train["path"] == "train_landmark_files/34503/8821136.parquet"]["sign"])
 #seq = np.zeros((1, 259, 1629))  # shape (1, timesteps, 1629)
-print(seq.shape)
 # split seq in sub seq of 100 timesteps with a paddind of 0 at the end of the sequence
 seqs = []
+seq = np.reshape(seq, (1, seq.shape[0], seq.shape[1]))
 if seq.shape[1] < timesteps:
     for i in range(0, seq.shape[1], timesteps):
         if i + timesteps > seq.shape[1]:
-            seqs.append(np.reshape(np.concatenate((seq[0, i:], np.zeros((timesteps - (seq.shape[1] - i), features)))),
-                                   (1, timesteps, features)))
+            seqs.append(np.reshape(np.concatenate(
+                (seq[0, i:], np.zeros((1, timesteps - (seq.shape[1] - i), features)))
+            ), (1, timesteps, features)))
         else:
             seqs.append(np.reshape(seq[0, i:i + timesteps], (1, timesteps, features)))
 else:
-    seq = np.concatenate((seq, np.zeros((timesteps - len(seq), 1629))))
-    seqs.append(np.reshape(seq, (1, timesteps, features)))
+    zero = np.zeros((1, timesteps - (seq.shape[1] % timesteps), features))
+    seq = np.concatenate((seq, zero), axis=1)
+    for i in range(0, seq.shape[1], timesteps):
+        seqs.append(np.reshape(seq[0, i:i + timesteps], (1, timesteps, features)))
+
+     #seqs.append(np.reshape(seq, (1, timesteps, features)))
 # compute the prediction for each sub seq
 print("seqs: ", len(seqs))
 print("seqs[0]: ", seqs[0].shape)

@@ -62,8 +62,10 @@ if seq.shape[1] < timesteps:
         else:
             seqs.append(np.reshape(seq[0, i:i + timesteps], (1, timesteps, features)))
 else:
-    seq = np.concatenate((seq, np.zeros((1, timesteps - len(seq), 1629))))
-    seqs.append(np.reshape(seq, (1, timesteps, features)))
+    zero = np.zeros((1, timesteps - (seq.shape[1] % timesteps), features))
+    seq = np.concatenate((seq, zero), axis=1)
+    for i in range(0, seq.shape[1], timesteps):
+        seqs.append(np.reshape(seq[0, i:i + timesteps], (1, timesteps, features)))
 # compute the prediction for each sub seq
 print("seqs: ", len(seqs))
 print("seqs[0]: ", seqs[0].shape)
