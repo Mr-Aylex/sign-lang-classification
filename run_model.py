@@ -265,7 +265,7 @@ plt.xlabel("Epoch #")
 
 plt.ylabel("Loss/Accuracy")
 plt.legend()
-plt.savefig("plot.png")
+plt.savefig("plot_lstm64.png")
 
 # %%
 tf.keras.saving.save_model(model, "model_save")

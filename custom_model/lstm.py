@@ -16,7 +16,7 @@ class CustomModel(keras.Model):
         self.features = features
 
         self.masking = Masking(mask_value=0., batch_input_shape=(batch_size, timesteps, features))
-        self.lstm = LSTM(32, stateful=True, input_dim=(timesteps, features))
+        self.lstm = LSTM(64, stateful=True, input_dim=(timesteps, features))
         self.output_ = Dense(units=nb_classes, activation='softmax')
 
     def call(self, inputs, training=False, mask=None):
