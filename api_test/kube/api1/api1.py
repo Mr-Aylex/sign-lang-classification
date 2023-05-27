@@ -5,10 +5,10 @@ from kubernetes import client, config
 
 logging.basicConfig(level=logging.INFO)
 
-#config.load_incluster_config()
+config.load_incluster_config()
 
 # Création d'un objet client Kubernetes
-#k8s_client = client.CoreV1Api()
+k8s_client = client.CoreV1Api()
 pod_ip_ = str
 app = Flask(__name__)
 
@@ -52,12 +52,11 @@ def upload_file():
     pod_ip_ = get_pod_ip('web-service-api2')
     # Configurer les informations de l'API de destination
     api_url = f"http://{pod_ip_}:5000/download"
-    headers = {'Content-Type': 'multipart/form-data'}
 
     with open("/app/fichier.txt", 'rb') as file:
         logging.info(file)
         # Effectuer la requête POST vers l'API de destination
-        response = requests.post(api_url, headers=headers)
+        response = requests.post(api_url, files={'file': file})
     logging.info(response.text)
     if response.status_code == 200:
         return 'Fichier envoyé avec succès'
@@ -70,11 +69,10 @@ def get_pod_ip(service_name, namespace='default'):
 
     try:
         # Récupérer les informations du service
-        # service_info = k8s_client.read_namespaced_service(service_name, namespace)
-        #
-        # # Récupérer l'adresse IP du pod à partir du service
-        # pod_ip = service_info.spec.cluster_ip
-        pod_ip = "127.0.0.1"
+        service_info = k8s_client.read_namespaced_service(service_name, namespace)
+
+        # Récupérer l'adresse IP du pod à partir du service
+        pod_ip = service_info.spec.cluster_ip
         return pod_ip
     except Exception as e:
         return f"Erreur : {str(e)}"

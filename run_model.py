@@ -34,7 +34,7 @@ nb_classes = len(train["sign"].unique())
 model = CustomModel(batch_size, timesteps, features, nb_classes)
 # first call to initialize the model.
 model(tf.zeros((batch_size, timesteps, features)))
-#model.load_weights("checkpoint/gru/model1_pretrained.h5")
+model.load_weights("checkpoint/lstm/64/model95.h5")
 
 
 # model = tf.keras.saving.load_model("checkpoint/gru2/model.h5")
@@ -191,7 +191,7 @@ def custom_fit(model, epochs, train_dataset, val_dataset=None):
     train_loss_ = []
     val_loss_ = []
     previsous_loss = 0
-    for epoch in range(epochs):
+    for epoch in range(95, epochs):
         print("\nStart of epoch %d" % (epoch,))
         start_time = time.time()
         max_sequence_length = timesteps
@@ -247,7 +247,7 @@ def custom_fit(model, epochs, train_dataset, val_dataset=None):
 
 # %%
 
-epochs = 150
+epochs = 55
 
 metrics_ = custom_fit(model, epochs, train_dataset, val_dataset=val_dataset)
 
