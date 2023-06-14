@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: signaify-service
+spec:
+  selector:
+    app: signaify
+  ports:
+  - protocol: "TCP"
+    port: 5000
+    targetPort: 5000
+  type: NodePort
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: signaify
+spec:
+  selector:
+    matchLabels:
+      app: signaify
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: signaify
+    spec:
+      volumes:
+      - name: local-pv
+        persistentVolumeClaim:
+          claimName: local-pvc
+      containers:
+      - name: signaify
+        image: mraylex/model_api:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5000
+        volumeMounts:
+        - mountPath: /mnt/data
+          name: local-pv

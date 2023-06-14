@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-service
+spec:
+  selector:
+    app: web
+  ports:
+  - protocol: "TCP"
+    port: 6000
+    targetPort: 6000
+  type: NodePort
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  selector:
+    matchLabels:
+      app: web
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      volumes:
+      - name: local-pv
+        persistentVolumeClaim:
+          claimName: local-pvc
+      containers:
+      - name: web
+        image: mraylex/web_controler:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 6000
+        volumeMounts:
+        - mountPath: /mnt/data
+          name: local-pv

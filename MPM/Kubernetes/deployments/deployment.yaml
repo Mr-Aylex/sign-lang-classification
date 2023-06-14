@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: mpm-service
+  name: mpm_api-service
 spec:
   selector:
-    app: mpm
+    app: mpm_api
   ports:
   - protocol: "TCP"
     port: 6000
@@ -15,10 +15,10 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: mpm
+  name: mpm_api
 spec:
   containers:
-  - name: mpm
-    image: dopehat54/mpm:latest
+  - name: mpm_api
+    image: dopehat54/mpm_api:latest
     ports:
     - containerPort: 80

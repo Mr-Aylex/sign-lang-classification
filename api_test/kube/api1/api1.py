@@ -65,8 +65,6 @@ def upload_file():
 
 
 def get_pod_ip(service_name, namespace='default'):
-
-
     try:
         # Récupérer les informations du service
         service_info = k8s_client.read_namespaced_service(service_name, namespace)

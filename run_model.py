@@ -191,7 +191,7 @@ def custom_fit(model, epochs, train_dataset, val_dataset=None):
     train_loss_ = []
     val_loss_ = []
     previsous_loss = 0
-    for epoch in range(95, epochs):
+    for epoch in range(epochs):
         print("\nStart of epoch %d" % (epoch,))
         start_time = time.time()
         max_sequence_length = timesteps

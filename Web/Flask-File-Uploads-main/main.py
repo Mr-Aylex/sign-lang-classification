@@ -110,14 +110,14 @@ def translate():
         'apiVersion': 'v1',
         'kind': 'Pod',
         'metadata': {
-            'name': 'mpm'
+            'name': 'mpm_api'
         },
         'spec': {
             'restartPolicy': 'Never',
             'containers': [
                 {
-                    'name': 'mpm',
-                    'image': 'dopehat54/mpm:latest',
+                    'name': 'mpm_api',
+                    'image': 'dopehat54/mpm_api:latest',
                     'ports': [{'containerPort': 80}],
                     'volumeMounts': [
                         {
@@ -138,19 +138,19 @@ def translate():
         }
     }
     try:
-        api_client.read_namespaced_pod(name="mpm", namespace="default")
+        api_client.read_namespaced_pod(name="mpm_api", namespace="default")
         # Pod exists, so delete it
-        api_client.delete_namespaced_pod(name="mpm", namespace="default")
-        logging.error(f"Pod mpm in namespace default deleted successfully.")
+        api_client.delete_namespaced_pod(name="mpm_api", namespace="default")
+        logging.error(f"Pod mpm_api in namespace default deleted successfully.")
     except client.rest.ApiException as e:
         if e.status == 404:
             # Pod doesn't exist, so do nothing
-            logging.error(f"Pod mpm in namespace default doesn't exist.")
+            logging.error(f"Pod mpm_api in namespace default doesn't exist.")
         else:
             # Unexpected error occurred
             logging.error(f"Error: {e}")
     api_client.create_namespaced_pod(namespace='default', body=pod_manifest) #création de pod
-    wait_for_pod_completion(api_client, 'mpm', 'default')
+    wait_for_pod_completion(api_client, 'mpm_api', 'default')
 
 
 
