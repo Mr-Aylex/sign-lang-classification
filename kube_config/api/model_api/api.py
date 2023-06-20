@@ -53,8 +53,12 @@ def run_model():
         if seq.shape[1] < timesteps:
             for i in range(0, seq.shape[1], timesteps):
                 if i + timesteps > seq.shape[1]:
+                    logging.error(f"zero: { np.zeros((timesteps - (seq.shape[1] - i), features)).shape}")
+                    logging.error(f"seq: {seq[0, i:].shape}")
                     seqs.append(np.reshape(
-                        np.concatenate((seq[0, i:], np.zeros((1, timesteps - (seq.shape[1] - i), features)))),
+                        np.concatenate(
+                            [seq[0, i:], np.zeros((timesteps - (seq.shape[1] - i), features))]
+                        ),
                         (1, timesteps, features)))
                 else:
                     seqs.append(np.reshape(seq[0, i:i + timesteps], (1, timesteps, features)))
