@@ -1,6 +1,7 @@
 import logging
 import uuid
-
+import boto3 as bt
+from botocore.config import Config
 import pandas as pd
 import requests
 from flask import Flask, render_template, request
@@ -14,18 +15,19 @@ config.load_incluster_config()
 k8s_client = client.CoreV1Api()
 
 app = Flask(__name__)
-CREDENTIAL_FILE = pd.read_csv("/app/Theo-Dalex_credentials.csv")
-ACCESS_KEY = CREDENTIAL_FILE['Nom d\'utilisateur'][0]
-SECRET_KEY = CREDENTIAL_FILE['Mot de passe'][0]
-STORAGE_PATH = "/path/data/"
-BUCKET_NAME = "sign-video"
-
+CREDENTIAL_FILE = pd.read_csv("../signaify_accessKeys.csv")
+ACCESS_KEY = CREDENTIAL_FILE['Access key ID'][0]
+SECRET_KEY = CREDENTIAL_FILE['Secret access key'][0]
+BUCKET_NAME = "signaify"
+ALLOWED_EXTENSIONS = {'mp4'}
 
 @app.route('/', methods=['GET', "POST"])
 def index():
     return render_template('index.html')
 
-
+def allowed_file(filename):
+    return '.' in filename and \
+        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @app.route('/upload', methods=['GET', "POST"])
@@ -40,21 +42,21 @@ def upload():
         new_filename = f"{uuid.uuid4()}.mp4"
         video.save(f"/mnt/data/{new_filename}")
 
-        # bucket_name = "sign-video"
-        # s3 = bt.resource(
-        #     's3',
-        #     aws_access_key_id=ACCESS_KEY,
-        #     aws_secret_access_key=SECRET_KEY,
-        #     config=Config(
-        #         region_name='eu-west-3',
-        #     )
-        # )
-        # video_url = f'https://{bucket_name}.s3.amazonaws.com/{video.filename}'
-        # logging.error(video_url)
-        # logging.error(video.filename)
-        # logging.error(bucket_name)
-        # video.seek(0)
-        # s3.Bucket(bucket_name).upload_fileobj(video, video.filename)
+        bucket_name = "sign-video"
+        s3 = bt.resource(
+            's3',
+            aws_access_key_id=ACCESS_KEY,
+            aws_secret_access_key=SECRET_KEY,
+            config=Config(
+                region_name='eu-west-3',
+            )
+        )
+        video_url = f'https://{bucket_name}.s3.amazonaws.com/{video.filename}'
+        logging.error(video_url)
+        logging.error(video.filename)
+        logging.error(bucket_name)
+        video.seek(0)
+        s3.Bucket(bucket_name).upload_fileobj(video, video.filename)
 
         #return render_template('preview.html', video_name=video.filename, video_url=video_url)
         return render_template('preview.html', video_name=new_filename, video_url="localhost")

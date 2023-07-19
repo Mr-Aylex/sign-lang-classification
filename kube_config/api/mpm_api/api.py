@@ -21,6 +21,35 @@ mp_drawing = mp.solutions.drawing_utils
 mp_holistic = mp.solutions.holistic
 
 
+def format_df(df):
+    # Reshape the DataFrame using pivot_table
+    df = pd.DataFrame({'landmark_index': pd.to_numeric(df['landmark_index'], errors='coerce'),
+                       'frame': pd.to_numeric(df['frame'], errors='coerce'),
+                       'type': df['type'].astype(str),
+                       'x': df['x'],
+                       'y': df['y'],
+                       'z': df['z']})
+
+    df_pivot = df.pivot_table(index='frame', columns=['type', 'landmark_index'])
+
+    # Flatten the MultiIndex column names
+    df_pivot.columns = ['{}_{}_{}'.format(pos, type_val, point) for pos, type_val, point in df_pivot.columns]
+
+    # Create the final DataFrame
+    final_df = pd.DataFrame(df_pivot.to_records())
+
+    with open('removed_columns.txt', 'r') as file:
+        removed_columns = [column.strip() for column in file.readlines()]
+    final_df.drop(columns=removed_columns, inplace=True)
+
+    return final_df
+
+
+pd.set_option('display.max_rows', None)
+mp_drawing = mp.solutions.drawing_utils
+mp_holistic = mp.solutions.holistic
+
+
 def get_right_hand_landmark_indexes(hand, frame):
     index_list = ['WRIST', 'THUMB_CMC', 'THUMB_MCP', 'THUMB_IP', 'THUMB_TIP', 'INDEX_FINGER_MCP', 'INDEX_FINGER_PIP',
                   'INDEX_FINGER_DIP', 'INDEX_FINGER_TIP', 'MIDDLE_FINGER_MCP', 'MIDDLE_FINGER_PIP', 'MIDDLE_FINGER_DIP',
@@ -101,7 +130,6 @@ def get_face_landmark_indexes(face, frame):
 
 
 def Mediapipe_holistic(video):
-    logging.info(video)
     count = 0
     data = []
     cap = cv2.VideoCapture(video)
@@ -161,6 +189,10 @@ def Mediapipe_holistic(video):
             #   break
     flat_list = [item for sublist in data for item in sublist]
     df = pd.DataFrame(flat_list, columns=['frame', 'row_id', 'type', 'landmark_index', 'x', 'y', 'z'])
+
+    df = format_df(df)
+
+
     return df
 
 
