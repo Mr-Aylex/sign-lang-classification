@@ -6,15 +6,11 @@
 </head>
 <body>
     <video width="320" height="240" controls>
-        <source src="{{url_for('static', filename='files/' + video_name)}}" type="video/mp4">
-        Your browser does not support the video tag.
+        <source src="{{ video_url }}" type="video/mp4">
     </video>
-<!--    <div class="buttons-container">-->
-<!--        <button class="button-arounder">Traduire la vidéo</button>-->
-<!--    </div>-->
+</body>
     <div class="buttons-container">
         <form action="{{url_for('translate')}}" method='POST' enctype='multipart/form-data'>
-            <input type="hidden" name="video_name" value="{{video_name}}">
              <input type="submit" value="Translate" class="button-arounder">
         </form>
     </div>
