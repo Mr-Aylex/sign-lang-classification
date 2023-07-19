@@ -8,11 +8,11 @@ import boto3 as bt
 logging.getLogger().setLevel(logging.ERROR)
 
 
-CREDENTIAL_FILE = pd.read_csv("Theo-Dalex_credentials.csv")
-ACCESS_KEY = CREDENTIAL_FILE['Nom d\'utilisateur'][0]
-SECRET_KEY = CREDENTIAL_FILE['Mot de passe'][0]
+CREDENTIAL_FILE = pd.read_csv("signaify_accessKeys.csv")
+ACCESS_KEY = CREDENTIAL_FILE['Access key ID'][0]
+SECRET_KEY = CREDENTIAL_FILE['Secret access key'][0]
 
-BUCKET_NAME = "sign-video"
+BUCKET_NAME = "signaify"
 
 S3 = bt.resource(
     's3',
@@ -23,6 +23,28 @@ S3 = bt.resource(
     )
 )
 
+def format_df(df):
+    # Reshape the DataFrame using pivot_table
+    df = pd.DataFrame({'landmark_index': pd.to_numeric(df['landmark_index'], errors='coerce'),
+                       'frame': pd.to_numeric(df['frame'], errors='coerce'),
+                       'type': df['type'].astype(str),
+                       'x': df['x'],
+                       'y': df['y'],
+                       'z': df['z']})
+
+    df_pivot = df.pivot_table(index='frame', columns=['type', 'landmark_index'])
+
+    # Flatten the MultiIndex column names
+    df_pivot.columns = ['{}_{}_{}'.format(pos, type_val, point) for pos, type_val, point in df_pivot.columns]
+
+    # Create the final DataFrame
+    final_df = pd.DataFrame(df_pivot.to_records())
+
+    with open('removed_columns.txt', 'r') as file:
+        removed_columns = [column.strip() for column in file.readlines()]
+    final_df.drop(columns=removed_columns, inplace=True)
+
+    return final_df
 
 def download_file(bucket_name, file_name):
     logging.info('Downloading file %s from bucket %s', file_name, bucket_name)
@@ -31,10 +53,10 @@ def download_file(bucket_name, file_name):
 
 
 def delete_all_files(bucket_name):
-    logging.info('Deleting all files from bucket %s', bucket_name)
+    logging.error('Deleting all files from bucket %s', bucket_name)
     bucket = S3.Bucket(bucket_name)
     bucket.objects.all().delete()
-    logging.info('Delete complete')
+    logging.error('Delete complete')
 
 
 pd.set_option('display.max_rows', None)
@@ -181,16 +203,20 @@ def Mediapipe_holistic(video):
             #   break
     flat_list = [item for sublist in data for item in sublist]
     df = pd.DataFrame(flat_list, columns=['frame', 'row_id', 'type', 'landmark_index', 'x', 'y', 'z'])
+
+    df = format_df(df)
+
+
     return df
 
-
+video = ""
 #video = "WIN_20230427_12_27_08_Pro.mp4"
 for object in S3.Bucket(BUCKET_NAME).objects.all():
     video = object.key
+    logging.error(object.key)
     download_file(BUCKET_NAME, object.key)
 
-delete_all_files(BUCKET_NAME)
-
 df = Mediapipe_holistic(video)
-
+logging.error(len(df))
+delete_all_files(BUCKET_NAME)
 df.to_csv('/path/data/data.csv', index=False)

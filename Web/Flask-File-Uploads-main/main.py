@@ -19,11 +19,12 @@ import gzip
 import base64
 
 app = Flask(__name__)
-CREDENTIAL_FILE = pd.read_csv("/app/Theo-Dalex_credentials.csv")
-ACCESS_KEY = CREDENTIAL_FILE['Nom d\'utilisateur'][0]
-SECRET_KEY = CREDENTIAL_FILE['Mot de passe'][0]
+CREDENTIAL_FILE = pd.read_csv("/app/signaify_accessKeys.csv")
+ACCESS_KEY = CREDENTIAL_FILE['Access key ID'][0]
+SECRET_KEY = CREDENTIAL_FILE['Secret access key'][0]
 STORAGE_PATH = "/path/data/"
-BUCKET_NAME = "sign-video"
+VIDEO_STORAGE_PATH = "/path/video/"
+BUCKET_NAME = "signaify"
 df = pd.DataFrame()
 
 @app.route('/dataframe', methods=['GET'])
@@ -75,9 +76,7 @@ def upload():
     if video.filename == '':
         return "No video file selected"
     if video and allowed_file(video.filename):
-        """video.save('static/files/'+video.filename)"""
-        new_filename = uuid.uuid4().hex + '.' + video.filename.rsplit('.', 1)[1].lower()
-        bucket_name = "sign-video"
+        bucket_name = BUCKET_NAME
         s3 = bt.resource(
             's3',
             aws_access_key_id=ACCESS_KEY,
@@ -224,8 +223,7 @@ def translate():
 
     if pod_ready:
         # Get the prediction result from the Pod
-        prediction_result = requests.get('http://localhost:90')
-        prediction = json.loads(prediction_result.text)
+        prediction_result = api_client.read_namespaced_pod_log(prediction_pod_manifest, "default")
         # Do something with the prediction...
 
     return 'Prediction completed.'
