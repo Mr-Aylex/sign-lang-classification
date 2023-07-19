@@ -223,7 +223,8 @@ def run_mpm(name):
     df_buffer = BytesIO()
     df.to_csv(df_buffer, index=False)
 
-    req_res = requests.post(f'http://{pod_ip_}:5000/run', files={'file': df_buffer.getvalue()})
+    #req_res = requests.post(f'http://{pod_ip_}:5000/run', files={'file': df_buffer.getvalue()})
+    req_res = requests.post(f'http://{pod_ip_}:5000/predict', files={'file': df_buffer.getvalue()})
     logging.info(req_res.text)
     return req_res.text
 
