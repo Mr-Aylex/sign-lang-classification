@@ -1,0 +1,33 @@
+# load only the npy
+train_dataset = train_dataset.map(
+    lambda npy_path, phrase: tf.py_function(func=load_npy, inp=[npy_path, phrase], Tout=(tf.float32, tf.string)),
+    num_parallel_calls=tf.data.AUTOTUNE)
+
+train_dataset = train_dataset.map(
+    lambda inputs, label: (inputs, tokenizer.tokenize(label)),
+    num_parallel_calls=tf.data.AUTOTUNE)
+
+
+# add mask  of 4 to the output
+
+
+
+train_dataset = train_dataset.map(
+    lambda inputs, label: tf.py_function(func=add_mask, inp=[inputs, label], Tout=(tf.float32, tf.int32)),
+    num_parallel_calls=tf.data.AUTOTUNE)
+
+## convert to one hot
+#train_dataset = train_dataset.map(
+#    lambda inputs, label: (inputs, tf.one_hot(label, depth=tokenizer.vocabulary_size())),
+#    num_parallel_calls=tf.data.AUTOTUNE)
+
+# reshape the input
+train_dataset = train_dataset.map(
+    lambda inputs, label: (tf.reshape(inputs, (900, 543, 3)), label),
+    num_parallel_calls=tf.data.AUTOTUNE)
+
+# cast the label to float32
+# train_dataset = train_dataset.map(
+#    lambda inputs, label: (inputs, tf.cast(label, tf.float32)),
+#    num_parallel_calls=tf.data.AUTOTUNE)
+

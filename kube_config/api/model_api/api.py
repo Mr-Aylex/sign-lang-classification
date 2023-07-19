@@ -79,6 +79,13 @@ def run_model():
 
 
 
+@app.route('/predict', methods=['POST'])
+def predict():
+    if request.method == 'POST':
+        # Récupérer le fichier envoyé
+        uploaded_file = request.files['file']
+
+
 
 @app.route('/')
 def health():

@@ -1,0 +1,2 @@
+Pour créer un vocabulaire pour un BytePairTokenizer (BPT) à partir de données de texte, vous pouvez utiliser la bibliothèque Hugging Face’s Tokenizers. Le Byte-Pair Encoding (BPE), est une méthode de tokenisation populaire utilisée pour former des vocabulaires. Voici un générateur de code de base pour cela :
+
