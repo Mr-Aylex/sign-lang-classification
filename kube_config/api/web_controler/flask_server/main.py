@@ -42,13 +42,13 @@ def upload():
         new_filename = f"{uuid.uuid4()}.mp4"
         video.save(f"/mnt/data/{new_filename}")
 
-        bucket_name = "sign-video"
+        bucket_name = BUCKET_NAME
         s3 = bt.resource(
             's3',
             aws_access_key_id=ACCESS_KEY,
             aws_secret_access_key=SECRET_KEY,
             config=Config(
-                region_name='eu-west-3',
+                region_name='eu-west-1',
             )
         )
         video_url = f'https://{bucket_name}.s3.amazonaws.com/{video.filename}'
@@ -57,9 +57,7 @@ def upload():
         logging.error(bucket_name)
         video.seek(0)
         s3.Bucket(bucket_name).upload_fileobj(video, video.filename)
-
-        #return render_template('preview.html', video_name=video.filename, video_url=video_url)
-        return render_template('preview.html', video_name=new_filename, video_url="localhost")
+        return render_template('preview.html', video_name=video.filename, video_url=video_url)
 
     return "pas le bon type de fichier"
 

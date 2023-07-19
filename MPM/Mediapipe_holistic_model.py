@@ -8,7 +8,7 @@ import boto3 as bt
 logging.getLogger().setLevel(logging.ERROR)
 
 
-CREDENTIAL_FILE = pd.read_csv("signaify_accessKeys.csv")
+CREDENTIAL_FILE = pd.read_csv("../kube_config/api/web_controler/signaify_accessKeys.csv")
 ACCESS_KEY = CREDENTIAL_FILE['Access key ID'][0]
 SECRET_KEY = CREDENTIAL_FILE['Secret access key'][0]
 

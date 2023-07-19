@@ -19,11 +19,9 @@ import gzip
 import base64
 
 app = Flask(__name__)
-CREDENTIAL_FILE = pd.read_csv("/app/signaify_accessKeys.csv")
+CREDENTIAL_FILE = pd.read_csv("../signaify_accessKeys.csv")
 ACCESS_KEY = CREDENTIAL_FILE['Access key ID'][0]
 SECRET_KEY = CREDENTIAL_FILE['Secret access key'][0]
-STORAGE_PATH = "/path/data/"
-VIDEO_STORAGE_PATH = "/path/video/"
 BUCKET_NAME = "signaify"
 df = pd.DataFrame()
 
@@ -82,7 +80,7 @@ def upload():
             aws_access_key_id=ACCESS_KEY,
             aws_secret_access_key=SECRET_KEY,
             config=Config(
-                region_name='eu-west-3',
+                region_name='eu-west-1',
             )
         )
         video_url = f'https://{bucket_name}.s3.amazonaws.com/{video.filename}'
@@ -91,7 +89,6 @@ def upload():
         logging.error(bucket_name)
         video.seek(0)
         s3.Bucket(bucket_name).upload_fileobj(video, video.filename)
-
         return render_template('preview.html', video_name=video.filename, video_url=video_url)
 
     return "pas le bon type de fichier"
