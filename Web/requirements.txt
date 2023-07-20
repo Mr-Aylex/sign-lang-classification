@@ -1,6 +1,0 @@
-flask
-pandas
-kubernetes
-flask_wtf
-boto3
-wtforms

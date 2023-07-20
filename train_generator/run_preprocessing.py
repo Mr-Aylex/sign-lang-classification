@@ -309,19 +309,19 @@ y = y[:row]
 
 # %%
 # Save X/y
-np.save('X.npy', X)
-np.save('y.npy', y)
+np.save('data/X.npy', X)
+np.save('data/y.npy', y)
 # Save Validation
 splitter = GroupShuffleSplit(test_size=0.10, n_splits=2, random_state=SEED)
 PARTICIPANT_IDS = train['participant_id'].values[VALID_IDXS]
 train_idxs, val_idxs = next(splitter.split(X, y, groups=PARTICIPANT_IDS))
 
 # Save Train
-np.save('X_train.npy', X[train_idxs])
-np.save('y_train.npy', y[train_idxs])
+np.save('data/X_train.npy', X[train_idxs])
+np.save('data/y_train.npy', y[train_idxs])
 # Save Validation
-np.save('X_val.npy', X[val_idxs])
-np.save('y_val.npy', y[val_idxs])
+np.save('data/X_val.npy', X[val_idxs])
+np.save('data/y_val.npy', y[val_idxs])
 # Verify Train/Val is correctly split by participan id
 print(f'Patient ID Intersection Train/Val: {set(PARTICIPANT_IDS[train_idxs]).intersection(PARTICIPANT_IDS[val_idxs])}')
 # Train/Val Sizes
@@ -379,5 +379,5 @@ def get_left_right_hand_mean_std():
 # Get Dominant Hand Mean/Standard Deviation
 MEANS, STDS = get_left_right_hand_mean_std()
 # Save Mean/STD to normalize input in neural network model
-np.save('MEANS.npy', MEANS)
-np.save('STDS.npy', STDS)
+np.save('data/MEANS.npy', MEANS)
+np.save('data/STDS.npy', STDS)

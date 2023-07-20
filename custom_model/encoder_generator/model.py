@@ -6,17 +6,17 @@ import tensorflow_addons as tfa
 
 from custom_model.encoder_generator.utils import scaled_dot_product, scce_with_ls
 
+# %%
+
+# Global Variables and Constants
+
 DATA_FOLDER = "/mnt/e/sign-lang-data-2"
 
-# N_COLS0 = 164
-# N_COLS = 164
-# N_TARGET_FRAMES = 128
 LEFT_HAND_NAMES0 = []
 INIT_ZEROS = tf.keras.initializers.constant(0.0)
 INIT_HE_UNIFORM = tf.keras.initializers.he_uniform
 INIT_GLOROT_UNIFORM = tf.keras.initializers.glorot_uniform
 GELU = tf.keras.activations.gelu
-
 
 # Read Character to Ordinal Encoding Mapping
 with open(f'{DATA_FOLDER}/character_to_prediction_index.json') as json_file:
@@ -34,14 +34,19 @@ PAD_TOKEN = len(CHAR2ORD)  # Padding
 SOS_TOKEN = len(CHAR2ORD) + 1  # Start Of Sentence
 EOS_TOKEN = len(CHAR2ORD) + 2  # End Of Sentence
 
-
 # Create Initial Loss Weights All Set To 1
 loss_weights = np.ones(N_UNIQUE_CHARACTERS, dtype=np.float32)
 # Set Loss Weight Of Pad Token To 0
 loss_weights[PAD_TOKEN] = 0
 
 
+# %%
+
+# Model and class Definition
 class WeightDecayCallback(tf.keras.callbacks.Callback):
+    """
+        Callback to set weight decay of optimizer
+    """
     def __init__(self, wd_ratio=0.05):
         super().__init__()
         self.step_counter = 0
@@ -51,6 +56,8 @@ class WeightDecayCallback(tf.keras.callbacks.Callback):
         self.model.optimizer.weight_decay = self.model.optimizer.learning_rate * self.wd_ratio
         print(
             f'learning rate: {self.model.optimizer.learning_rate.numpy():.2e}, weight decay: {self.model.optimizer.weight_decay.numpy():.2e}')
+
+
 class PreprocessLayer(tf.keras.layers.Layer):
     """
         Tensorflow layer to process data in TFLite
@@ -102,8 +109,11 @@ class PreprocessLayer(tf.keras.layers.Layer):
         return data
 
 
-# Embeds a landmark using fully connected layers
 class LandmarkEmbedding(tf.keras.Model):
+    """
+        Embeds a landmark using fully connected layers. It is used to make the model invariant to the order of the landmarks.
+
+    """
     def __init__(self, units, name):
         super(LandmarkEmbedding, self).__init__(name=f'{name}_embedding')
         self.units = units
@@ -137,6 +147,10 @@ class LandmarkEmbedding(tf.keras.Model):
 
 # Creates embedding for each frame
 class Embedding(tf.keras.Model):
+    """
+        Embeds the input data. It consists of a positional embedding and a landmark embedding.
+        It is used to create representations for each frame.
+    """
     def __init__(self, mean, std, n_frames, units):
         super(Embedding, self).__init__()
         self.mean = mean
@@ -173,6 +187,10 @@ class Embedding(tf.keras.Model):
 
 
 class MultiHeadAttention(tf.keras.layers.Layer):
+    """
+        Multi Head Attention Layer
+        The implementation of the Transformer is based on https://www.tensorflow.org/tutorials/text/transformer
+    """
     def __init__(self, d_model, num_of_heads, dropout, d_out=None):
         super(MultiHeadAttention, self).__init__()
         self.d_model = d_model
@@ -203,7 +221,12 @@ class MultiHeadAttention(tf.keras.layers.Layer):
 
 # Encoder based on multiple transformer blocks
 class Encoder(tf.keras.Model):
-    def __init__(self, num_blocks, units_encoder, num_head, mh_dropout_ratio, units_decoder, mlp_ratio, mlp_dropout_ratio, n_frames, layer_nom_eps=1e-6):
+    """
+        Encoder of the Transformer. It consists of multiple transformer blocks.
+        It is used to create a representation of frames encoded in the embedding layer.
+    """
+    def __init__(self, num_blocks, units_encoder, num_head, mh_dropout_ratio, units_decoder, mlp_ratio,
+                 mlp_dropout_ratio, n_frames, layer_nom_eps=1e-6):
         super(Encoder, self).__init__(name='encoder')
         self.mhas = None
         self.ln_1s = None
@@ -258,7 +281,6 @@ class Encoder(tf.keras.Model):
             x = ln_1(x + mha(x, x, x, attention_mask=attention_mask))
             x = ln_2(x + mlp(x))
 
-
         # Optional Projection to Decoder Dimension
         if self.apply_dense_out:
             x = self.dense_out(x)
@@ -268,7 +290,12 @@ class Encoder(tf.keras.Model):
 
 # Decoder based on multiple transformer blocks
 class Decoder(tf.keras.Model):
-    def __init__(self, num_blocks, units_decoder, num_head, mh_dropout_ratio, units_encoder, n_frames, mlp_ratio, mlp_dropout_ratio, max_phrase_length, layer_nom_eps=1e-6):
+    """
+        Decoder of the Transformer. It consists of multiple transformer blocks.
+        Decoder_input is the output of the latent space encoder.
+    """
+    def __init__(self, num_blocks, units_decoder, num_head, mh_dropout_ratio, units_encoder, n_frames, mlp_ratio,
+                 mlp_dropout_ratio, max_phrase_length, layer_nom_eps=1e-6):
         super(Decoder, self).__init__(name='decoder')
         self.num_blocks = num_blocks
         self.supports_masking = True
@@ -281,6 +308,7 @@ class Decoder(tf.keras.Model):
         self.mlp_ratio = mlp_ratio
         self.mlp_dropout_ratio = mlp_dropout_ratio
         self.max_phrase_length = max_phrase_length
+
     def build(self, input_shape):
         # Positional Embedding, initialized with zeros
         self.positional_embedding = tf.Variable(
@@ -289,7 +317,8 @@ class Decoder(tf.keras.Model):
             name='embedding_positional_encoder',
         )
         # Character Embedding
-        self.char_emb = tf.keras.layers.Embedding(N_UNIQUE_CHARACTERS, self.units_decoder, embeddings_initializer=INIT_ZEROS)
+        self.char_emb = tf.keras.layers.Embedding(N_UNIQUE_CHARACTERS, self.units_decoder,
+                                                  embeddings_initializer=INIT_ZEROS)
         # Positional Encoder MHA
         self.pos_emb_mha = MultiHeadAttention(self.units_decoder, self.num_heads, self.mha_dropout_ratio)
         self.pos_emb_ln = tf.keras.layers.LayerNormalization(epsilon=self.layer_nom_eps)
@@ -357,6 +386,12 @@ class Decoder(tf.keras.Model):
 
 
 def get_causal_attention_mask(B, n_frames):
+    """
+    Causal Attention to make decoder not attend to future characters which it needs to predict
+    :param B:
+    :param n_frames:
+    :return:
+    """
     i = tf.range(n_frames)[:, tf.newaxis]
     j = tf.range(n_frames)
     mask = tf.cast(i >= j, dtype=tf.int32)
@@ -372,6 +407,9 @@ def get_causal_attention_mask(B, n_frames):
 
 # TopK accuracy for multi dimensional output
 class TopKAccuracy(tf.keras.metrics.Metric):
+    """
+    TopK accuracy for multi dimensional output
+    """
     def __init__(self, k, **kwargs):
         super(TopKAccuracy, self).__init__(name=f'top{k}acc', **kwargs)
         self.top_k_acc = tf.keras.metrics.SparseTopKCategoricalAccuracy(k=k)
@@ -392,6 +430,14 @@ class TopKAccuracy(tf.keras.metrics.Metric):
 
 
 def get_model(std, mean, params: dict):
+
+    """
+    This function returns the model for training with the given parameters
+    :param std:
+    :param mean:
+    :param params:
+    :return:
+    """
 
     n_frames = params['n_frames']
     n_cols = params['n_cols']
@@ -459,7 +505,7 @@ def get_model(std, mean, params: dict):
     # Create Tensorflow Model
     model = tf.keras.models.Model(inputs=[frames_inp, phrase_inp], outputs=outputs)
 
-    #model = AutoTranslatorModel(std=std, mean=mean)
+    # model = AutoTranslatorModel(std=std, mean=mean)
 
     # Categorical Crossentropy Loss With Label Smoothing
     loss = scce_with_ls
@@ -482,3 +528,73 @@ def get_model(std, mean, params: dict):
     )
 
     return model
+
+
+class TFLiteModel(tf.Module):
+    """
+    This class is used to convert the model to tflite
+    """
+    def __init__(self, model):
+        super(TFLiteModel, self).__init__()
+
+        # Load the feature generation and main models
+        self.preprocess_layer = PreprocessLayer()
+        self.model = model
+
+    @tf.function(jit_compile=True)
+    def encoder(self, x, frames_inp):
+        x = self.model.get_layer('embedding')(x)
+        x = self.model.get_layer('encoder')(x, frames_inp)
+
+        return x
+
+    @tf.function(jit_compile=True)
+    def decoder(self, x, phrase_inp):
+        x = self.model.get_layer('decoder')(x, phrase_inp)
+        x = self.model.get_layer('classifier')(x)
+
+        return x
+
+    @tf.function(input_signature=[tf.TensorSpec(shape=[None, 164], dtype=tf.float32, name='inputs')])
+    def __call__(self, inputs):
+        # Number Of Input Frames
+        N_INPUT_FRAMES = tf.shape(inputs)[0]
+        # Preprocess Data
+        frames_inp = self.preprocess_layer(inputs)
+        # Add Batch Dimension
+        frames_inp = tf.expand_dims(frames_inp, axis=0)
+        # Get Encoding
+        encoding = self.encoder(frames_inp, frames_inp)
+        # Make Prediction
+        phrase = tf.fill([1, MAX_PHRASE_LENGTH], PAD_TOKEN)
+        # Predict One Token At A Time
+        stop = False
+        for idx in tf.range(MAX_PHRASE_LENGTH):
+            # Cast phrase to int8
+            phrase = tf.cast(phrase, tf.int8)
+            # If EOS token is predicted, stop predicting
+            outputs = tf.cond(
+                stop,
+                lambda: tf.one_hot(tf.cast(phrase, tf.int32), N_UNIQUE_CHARACTERS),
+                lambda: self.decoder(encoding, phrase)
+            )
+            # Add predicted token to input phrase
+            phrase = tf.cast(phrase, tf.int32)
+            # Replcae PAD token with predicted token up to idx
+            phrase = tf.where(
+                tf.range(MAX_PHRASE_LENGTH) < idx + 1,
+                tf.argmax(outputs, axis=2, output_type=tf.int32),
+                phrase,
+            )
+            # Predicted Token
+            predicted_token = phrase[0, idx]
+            # If EOS (End Of Sentence) token is predicted stop
+            if not stop:
+                stop = predicted_token == EOS_TOKEN
+
+        # Squeeze outputs
+        outputs = tf.squeeze(phrase, axis=0)
+        outputs = tf.one_hot(outputs, N_UNIQUE_CHARACTERS)
+
+        # Return a dictionary with the output tensor
+        return {'outputs': outputs}

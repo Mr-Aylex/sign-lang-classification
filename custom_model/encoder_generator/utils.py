@@ -33,9 +33,17 @@ WD_RATIO = 0.05
 WARMUP_METHOD = 'exp'
 
 
-# based on: https://stackoverflow.com/questions/67342988/verifying-the-implementation-of-multihead-attention-in-transformer
-# replaced softmax with softmax layer to support masked softmax
 def scaled_dot_product(q, k, v, softmax, attention_mask):
+    """
+    based on: https://stackoverflow.com/questions/67342988/verifying-the-implementation-of-multihead-attention-in-transformer
+    replaced softmax with softmax layer to support masked softmax
+    :param q:
+    :param k:
+    :param v:
+    :param softmax:
+    :param attention_mask:
+    :return:
+    """
     # calculates Q . K(transpose)
     qkt = tf.matmul(q, k, transpose_b=True)
     # caculates scaling factor
@@ -48,6 +56,12 @@ def scaled_dot_product(q, k, v, softmax, attention_mask):
 
 
 def get_causal_attention_mask(B, N_TARGET_FRAMES=128):
+    """
+    Causal Attention to make decoder not attend to future characters which it needs to predict
+    :param B:
+    :param N_TARGET_FRAMES:
+    :return:
+    """
     i = tf.range(N_TARGET_FRAMES)[:, tf.newaxis]
     j = tf.range(N_TARGET_FRAMES)
     mask = tf.cast(i >= j, dtype=tf.int32)
@@ -62,6 +76,12 @@ def get_causal_attention_mask(B, N_TARGET_FRAMES=128):
 
 
 def scce_with_ls(y_true, y_pred):
+    """
+    Sparse Categorical Crossentropy with Label Smoothing
+    :param y_true:
+    :param y_pred:
+    :return:
+    """
     # Filter Pad Tokens
     idxs = tf.where(y_true != PAD_TOKEN)
     y_true = tf.gather_nd(y_true, idxs)
@@ -76,6 +96,12 @@ def scce_with_ls(y_true, y_pred):
 
 
 def plot_lr_schedule(lr_schedule, epochs):
+    """
+    Plot Learning Rate Schedule
+    :param lr_schedule:
+    :param epochs:
+    :return:
+    """
     fig = plt.figure(figsize=(20, 10))
     plt.plot([None] + lr_schedule + [None])
     # X Labels
@@ -114,6 +140,15 @@ def plot_lr_schedule(lr_schedule, epochs):
 
 
 def lrfn(current_step, num_warmup_steps, lr_max, num_training_steps, num_cycles=0.50):
+    """
+    Learning Rate Schedule
+    :param current_step:
+    :param num_warmup_steps:
+    :param lr_max:
+    :param num_training_steps:
+    :param num_cycles:
+    :return:
+    """
     if current_step < num_warmup_steps:
         if WARMUP_METHOD == 'log':
             return lr_max * 0.10 ** (num_warmup_steps - current_step)
@@ -125,16 +160,33 @@ def lrfn(current_step, num_warmup_steps, lr_max, num_training_steps, num_cycles=
         return max(0.0, 0.5 * (1.0 + math.cos(math.pi * float(num_cycles) * 2.0 * progress))) * lr_max
 
 
-
 # Output Predictions to string
 def outputs2phrase(outputs):
+    """
+    Convert Model Outputs to String
+    :param outputs:
+    :return:
+    """
     if outputs.ndim == 2:
         outputs = np.argmax(outputs, axis=1)
 
     return ''.join([ORD2CHAR.get(s, '') for s in outputs])
 
 
-def plot_history_metric(history, metric, f_best=np.argmax, ylim=None, yscale=None, yticks=None):
+def plot_history_metric(history, metric, model_name, f_best=np.argmax, ylim=None, yscale=None, yticks=None):
+    """
+    Plot History Metric
+    plot the best point model with the metric
+    :param history:
+    :param metric:
+    :param model_name:
+    :param f_best:
+    :param ylim:
+    :param yscale:
+    :param yticks:
+    :return:
+    """
+
     # Only plot when training
 
     plt.figure(figsize=(20, 10))
@@ -182,12 +234,19 @@ def plot_history_metric(history, metric, f_best=np.argmax, ylim=None, yscale=Non
 
     plt.legend(prop={'size': 10})
     plt.grid()
-    plt.savefig(f'./{metric}.png')
+    plt.savefig(f'./{model_name}_{metric}.png')
     plt.show()
 
 
 #
 def verify_no_nan_predictions(model, dataset, steps=100):
+    """
+    Verify No NaN Predictions
+    :param model:
+    :param dataset:
+    :param steps:
+    :return:
+    """
     y_pred = model.predict(
         dataset,
         steps=steps,
@@ -204,6 +263,12 @@ def verify_no_nan_predictions(model, dataset, steps=100):
 
 
 def verify_correct_training_flag(model, X_batch_small):
+    """
+    Verify Correct Training Flag
+    :param model:
+    :param X_batch_small:
+    :return:
+    """
     # Verify static output for inference
     pred = model(X_batch_small, training=False)
     for _ in tqdm(range(10)):
@@ -213,12 +278,19 @@ def verify_correct_training_flag(model, X_batch_small):
     for _ in tqdm(range(10)):
         assert tf.reduce_mean(tf.cast(pred != model(X_batch_small, training=True), tf.float32)) > 0.99
 
+
 @tf.function()
 def predict_phrase(frames, model):
+    """
+    Predict Phrase
+    :param frames:
+    :param model:
+    :return:
+    """
     # Add Batch Dimension
     frames = tf.expand_dims(frames, axis=0)
     # Start Phrase
-    phrase = tf.fill([1,MAX_PHRASE_LENGTH], PAD_TOKEN)
+    phrase = tf.fill([1, MAX_PHRASE_LENGTH], PAD_TOKEN)
 
     for idx in tf.range(MAX_PHRASE_LENGTH):
         # Cast phrase to int8
@@ -246,6 +318,13 @@ def predict_phrase(frames, model):
 
 
 def get_ld_train(x_train, y_train, model):
+    """
+    Get Levenstein Distance Train
+    :param x_train:
+    :param y_train:
+    :param model:
+    :return:
+    """
     N = 1000
     LD_TRAIN = []
     for idx, (frames, phrase_true) in enumerate(zip(tqdm(x_train, total=N), y_train)):
@@ -271,6 +350,13 @@ def get_ld_train(x_train, y_train, model):
 
 
 def get_ld_val(x_val, y_val, model):
+    """
+    Get Levenstein Distance Val
+    :param x_val:
+    :param y_val:
+    :param model:
+    :return:
+    """
     N = 1000
     LD_VAL = []
     for idx, (frames, phrase_true) in enumerate(zip(tqdm(x_val, total=N), y_val)):
@@ -301,6 +387,13 @@ def get_file_path(path):
 
 # Train Dataset Iterator
 def get_train_dataset(X, y, batch_size):
+    """
+    Get Train Dataset Iterator
+    :param X:
+    :param y:
+    :param batch_size:
+    :return:
+    """
     sample_idxs = np.arange(len(X))
     while True:
         # Get random indices
@@ -314,22 +407,39 @@ def get_train_dataset(X, y, batch_size):
 
         yield inputs, outputs
 
+
 # Validation Dataset Iterator
 def get_val_dataset(X, y, batch_size):
+    """
+    Get Validation Dataset Iterator
+    :param X:
+    :param y:
+    :param batch_size:
+    :return:
+    """
     offsets = np.arange(0, len(X), batch_size)
     while True:
         # Iterate over whole validation set
         for offset in offsets:
             inputs = {
-                'frames': X[offset:offset+batch_size],
-                'phrase': y[offset:offset+batch_size],
+                'frames': X[offset:offset + batch_size],
+                'phrase': y[offset:offset + batch_size],
             }
-            outputs = y[offset:offset+batch_size]
+            outputs = y[offset:offset + batch_size]
 
             yield inputs, outputs
 
 
 def get_idxs(df, words_pos, words_neg=[], ret_names=True, idxs_pos=None):
+    """
+    Get Idxs from Dataframe
+    :param df:
+    :param words_pos:
+    :param words_neg:
+    :param ret_names:
+    :param idxs_pos:
+    :return:
+    """
     idxs = []
     names = []
     for w in words_pos:
