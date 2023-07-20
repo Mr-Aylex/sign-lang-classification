@@ -15,7 +15,7 @@ tqdm.pandas()
 utils.set_random_seed(1234)
 # Load the data
 DATA_FOLDER = "/mnt/e/sign-lang-data/"
-train = pd.read_csv(os.path.join(DATA_FOLDER, "train_processed.csv"))
+train = pd.read_csv(os.path.join(DATA_FOLDER, "../train_processed.csv"))
 dict_sign = {}
 for i, sign in enumerate(train["sign"].unique()):
     dict_sign[sign] = i
@@ -268,5 +268,5 @@ plt.legend()
 plt.savefig("plot_lstm64.png")
 
 # %%
-tf.keras.saving.save_model(model, "model_save")
+tf.keras.saving.save_model(model, "../model_save")
 # %%

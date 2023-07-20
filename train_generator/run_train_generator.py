@@ -133,7 +133,7 @@ LD_TRAIN_DF = get_ld_train(x_train=X_train, y_train=y_train, model=model)
 LD_VAL_DF = get_ld_val(x_val=X_val, y_val=y_val, model=model)
 
 # %%
-# Value Counts
+# show the distribution of Levenstein Distance
 LD_TRAIN_VC = dict([(i, 0) for i in range(LD_TRAIN_DF['levenshtein_distance'].max() + 1)])
 for ld in LD_TRAIN_DF['levenshtein_distance']:
     LD_TRAIN_VC[ld] += 1
@@ -162,11 +162,11 @@ plt.grid(axis='y')
 plt.savefig(f'{MODEL_NAME}_validation_levenshtein_distance_distribution.png')
 plt.show()
 
-plot_history_metric(history, MODEL_NAME, 'loss', f_best=np.argmin)
+plot_history_metric(history, 'loss', MODEL_NAME, f_best=np.argmin)
 
-plot_history_metric(history, MODEL_NAME, 'top1acc', ylim=[0, 1], yticks=np.arange(0.0, 1.1, 0.1))
+plot_history_metric(history, 'top1acc', MODEL_NAME, ylim=[0, 1], yticks=np.arange(0.0, 1.1, 0.1))
 
-plot_history_metric(history, MODEL_NAME, 'top5acc', ylim=[0, 1], yticks=np.arange(0.0, 1.1, 0.1))
+plot_history_metric(history, 'top5acc', MODEL_NAME, ylim=[0, 1], yticks=np.arange(0.0, 1.1, 0.1))
 
 if convert_to_tf_lite:
     # Define TF Lite Model
@@ -177,7 +177,7 @@ if convert_to_tf_lite:
     # Convert Model
     tflite_model = keras_model_converter.convert()
     # Write Model
-    with open('model_save/model.tflite', 'wb') as f:
+    with open(f'model_save/{MODEL_NAME}.tflite', 'wb') as f:
         f.write(tflite_model)
 
     

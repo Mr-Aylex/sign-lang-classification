@@ -7,7 +7,7 @@ from custom_model.gru import CustomModel as CustomModel3
 
 # %%
 DATA_FOLDER = "/mnt/e/sign-lang-data/"
-train = pd.read_csv(os.path.join("train_processed.csv"))
+train = pd.read_csv(os.path.join("../train_processed.csv"))
 dict_sign = {}
 for i, sign in enumerate(train["sign"].unique()):
     dict_sign[i] = sign
