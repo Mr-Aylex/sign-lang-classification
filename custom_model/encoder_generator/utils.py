@@ -325,7 +325,7 @@ def get_ld_train(x_train, y_train, model):
     :param model:
     :return:
     """
-    N = 1000
+    N = 100
     LD_TRAIN = []
     for idx, (frames, phrase_true) in enumerate(zip(tqdm(x_train, total=N), y_train)):
         # Predict Phrase and Convert to String
@@ -357,7 +357,7 @@ def get_ld_val(x_val, y_val, model):
     :param model:
     :return:
     """
-    N = 1000
+    N = 100
     LD_VAL = []
     for idx, (frames, phrase_true) in enumerate(zip(tqdm(x_val, total=N), y_val)):
         # Predict Phrase and Convert to String

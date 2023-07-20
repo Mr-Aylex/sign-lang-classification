@@ -15,7 +15,7 @@ tqdm.pandas()
 utils.set_random_seed(1234)
 # Load the data
 DATA_FOLDER = "/mnt/e/sign-lang-data/"
-train = pd.read_csv(os.path.join(DATA_FOLDER, "../train_processed.csv"))
+train = pd.read_csv(os.path.join(DATA_FOLDER, "train_processed.csv"))
 dict_sign = {}
 for i, sign in enumerate(train["sign"].unique()):
     dict_sign[sign] = i
@@ -27,14 +27,14 @@ from custom_model.gru import CustomModel as CustomModel3
 
 batch_size = 64
 timesteps = 100
-# features = 1086
-features = 1629
+features = 1086
+# features = 1629
 nb_classes = len(train["sign"].unique())
 
 model = CustomModel(batch_size, timesteps, features, nb_classes)
 # first call to initialize the model.
 model(tf.zeros((batch_size, timesteps, features)))
-model.load_weights("checkpoint/lstm/64/model95.h5")
+#model.load_weights("checkpoint/lstm/64/model95.h5")
 
 
 # model = tf.keras.saving.load_model("checkpoint/gru2/model.h5")
@@ -75,15 +75,15 @@ def load_npy_file(filename, label):
 
     sequence = np.load(filename).astype(np.float32)
     # get only the x and y coordinates
-    sequence = sequence[:, :, :3]
+    sequence = sequence[:, :, :2]
 
-    sequence = np.reshape(sequence, (sequence.shape[0], 1629))
+    sequence = np.reshape(sequence, (sequence.shape[0], 1086))
     # sequence = np.reshape(sequence, (sequence.shape[0], 1086))
 
     if len(sequence) > max_nb_frames:
         sequence = sequence[:max_nb_frames]
     else:
-        sequence = np.concatenate((sequence, np.zeros((max_nb_frames - len(sequence), 1629))))
+        sequence = np.concatenate((sequence, np.zeros((max_nb_frames - len(sequence), 1086))))
         # sequence = np.concatenate((sequence, np.zeros((max_nb_frames - len(sequence), 1086))))
     label = utils.to_categorical(dict_sign[label], num_classes=250)
     return sequence, label
@@ -97,7 +97,7 @@ def load_parquet_file(filename, label):
     filename = filename.numpy().decode("utf-8")
     label = label.numpy().decode("utf-8")
 
-    df = pd.read_parquet(filename, engine="pyarrow", columns=["frame", "x", "y", "z"])
+    df = pd.read_parquet(filename, engine="pyarrow", columns=["frame", "x", "y"])
     df = df.fillna(0)
 
     # npy_data = np.load(filename.numpy()).astype(np.float32)
@@ -106,16 +106,16 @@ def load_parquet_file(filename, label):
     # convert label (b'[0,1]') to [0,1]
 
     nbframes = len(df["frame"].unique())
-    frames = np.zeros((nbframes, 543, 3))
+    frames = np.zeros((nbframes, 543, 2))
     for step, (name, timestep) in enumerate(df.groupby("frame")):
-        frames[step, :, :] = timestep[["x", "y", "z"]].values
+        frames[step, :, :] = timestep[["x", "y"]].values
 
-    sequence = np.reshape(np.stack(frames), (len(frames), 1629))
+    sequence = np.reshape(np.stack(frames), (len(frames), 1086))
 
     if len(sequence) > max_nb_frames:
         sequence = sequence[:max_nb_frames]
     else:
-        sequence = np.concatenate((sequence, np.zeros((max_nb_frames - len(sequence), 1629))))
+        sequence = np.concatenate((sequence, np.zeros((max_nb_frames - len(sequence), 1086))))
     label = utils.to_categorical(dict_sign[label], num_classes=250)
     return sequence, label
 
@@ -240,8 +240,8 @@ def custom_fit(model, epochs, train_dataset, val_dataset=None):
             print("Validation acc: %.4f ; loss: %.4f" % (np.mean(metrics), np.mean(losses)))
         print("Time taken: %.2fs" % (time.time() - start_time))
 
-        if epoch > 0 and val_loss_[-2] > previsous_loss:
-            model.save_weights(f'checkpoint/lstm/model{epoch}.h5')
+        # if epoch > 0 and val_loss_[-2] > previsous_loss:
+        #     model.save_weights(f'checkpoint/lstm/model{epoch}.h5')
     return train_loss_, train_acc_, val_loss_, val_acc_
 
 
@@ -268,5 +268,5 @@ plt.legend()
 plt.savefig("plot_lstm64.png")
 
 # %%
-tf.keras.saving.save_model(model, "../model_save")
+#tf.keras.saving.save_model(model, "../model_save")
 # %%
