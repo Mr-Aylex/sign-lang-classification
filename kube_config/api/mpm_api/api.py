@@ -1,4 +1,6 @@
 import logging
+import os
+
 import cv2
 import mediapipe as mp
 import time
@@ -35,10 +37,10 @@ def format_df(df):
     # Flatten the MultiIndex column names
     df_pivot.columns = ['{}_{}_{}'.format(pos, type_val, point) for pos, type_val, point in df_pivot.columns]
 
-    # Create the final DataFrame
-    final_df = pd.DataFrame(df_pivot.to_records())
 
-    with open('removed_columns.txt', 'r') as file:
+    # Create the final DataFrame
+    final_df = pd.DataFrame(df_pivot.to_records(), columns=df_pivot.columns)
+    with open('/app/removed_columns.txt', 'r') as file:
         removed_columns = [column.strip() for column in file.readlines()]
     final_df.drop(columns=removed_columns, inplace=True)
 
@@ -217,7 +219,8 @@ def health():
 def run_mpm(name):
     logging.error(name)
     pod_ip_ = get_pod_ip('signaify-service')
-
+    if not os.path.exists(f"/mnt/data/{name}"):
+        return "File not found"
     logging.error(name)
     df = Mediapipe_holistic(f"/mnt/data/{name}")
     df_buffer = BytesIO()

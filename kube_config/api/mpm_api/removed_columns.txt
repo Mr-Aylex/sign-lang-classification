@@ -1076,7 +1076,6 @@ y_face_443
 x_face_262
 z_face_241
 x_face_151
-frame
 z_face_156
 x_face_360
 y_face_289

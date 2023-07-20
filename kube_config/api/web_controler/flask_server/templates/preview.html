@@ -8,9 +8,10 @@
     <video width="320" height="240" controls>
         <source src="{{ video_url }}" type="video/mp4">
     </video>
-</body>
+
     <div class="buttons-container">
         <form action="{{url_for('translate')}}" method='POST' enctype='multipart/form-data'>
+            <input type="hidden" name="video_name" value="{{ video_name }}">
              <input type="submit" value="Translate" class="button-arounder">
         </form>
     </div>

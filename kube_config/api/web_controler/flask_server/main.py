@@ -15,7 +15,7 @@ config.load_incluster_config()
 k8s_client = client.CoreV1Api()
 
 app = Flask(__name__)
-CREDENTIAL_FILE = pd.read_csv("../signaify_accessKeys.csv")
+CREDENTIAL_FILE = pd.read_csv("/app/signaify_accessKeys.csv")
 ACCESS_KEY = CREDENTIAL_FILE['Access key ID'][0]
 SECRET_KEY = CREDENTIAL_FILE['Secret access key'][0]
 BUCKET_NAME = "signaify"
@@ -57,7 +57,7 @@ def upload():
         logging.error(bucket_name)
         video.seek(0)
         s3.Bucket(bucket_name).upload_fileobj(video, video.filename)
-        return render_template('preview.html', video_name=video.filename, video_url=video_url)
+        return render_template('preview.html', video_name=new_filename, video_url=video_url)
 
     return "pas le bon type de fichier"
 
@@ -92,9 +92,6 @@ def translate():
     # get id of the video
     video_id = request.form.get('video_name')
     # load the video from local storage to memory
-
-
-    
 
     # Send the video name to the API
     req_res = requests.get(f"http://{pod_ip_['mpm_api']}:4000/run/{video_id}")

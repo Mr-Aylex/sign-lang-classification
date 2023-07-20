@@ -6,7 +6,7 @@ import seaborn as sn
 import tensorflow as tf
 import tensorflow_addons as tfa
 
-from tqdm.notebook import tqdm
+from tqdm import tqdm
 from sklearn.model_selection import train_test_split, GroupShuffleSplit
 from leven import levenshtein
 
