@@ -54,7 +54,7 @@ mpl.rcParams['ytick.labelsize'] = 16
 mpl.rcParams['axes.labelsize'] = 18
 mpl.rcParams['axes.titlesize'] = 24
 # %%
-train = pd.read_csv(f'{DATA_FOLDER}/train.csv')
+train = pd.read_csv(f'{DATA_FOLDER}/supplemental_metadata.csv')
 N_SAMPLES = len(train)
 # %%
 

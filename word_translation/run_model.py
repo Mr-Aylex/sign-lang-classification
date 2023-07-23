@@ -9,7 +9,7 @@ from tqdm.keras import TqdmCallback
 import matplotlib.pyplot as plt
 
 # %%
-
+keras.backend.clear_session()
 tqdm.pandas()
 # keras set seed
 utils.set_random_seed(1234)
@@ -21,17 +21,17 @@ for i, sign in enumerate(train["sign"].unique()):
     dict_sign[sign] = i
 # %%
 
-from custom_model.lstm import CustomModel
+#from custom_model.lstm import CustomModel
 from custom_model.simple_rnn import CustomModel as CustomModel2
-from custom_model.gru import CustomModel as CustomModel3
+#from custom_model.gru import CustomModel as CustomModel3CustomModel3
 
-batch_size = 64
+batch_size = 512
 timesteps = 100
 features = 1086
 # features = 1629
 nb_classes = len(train["sign"].unique())
 
-model = CustomModel(batch_size, timesteps, features, nb_classes)
+model = CustomModel2(batch_size, timesteps, features, nb_classes)
 # first call to initialize the model.
 model(tf.zeros((batch_size, timesteps, features)))
 #model.load_weights("checkpoint/lstm/64/model95.h5")
@@ -250,6 +250,7 @@ def custom_fit(model, epochs, train_dataset, val_dataset=None):
 epochs = 55
 
 metrics_ = custom_fit(model, epochs, train_dataset, val_dataset=val_dataset)
+# save metrics
 
 # %%
 # plot the training loss and accuracy and validation loss and accuracy
@@ -265,8 +266,8 @@ plt.xlabel("Epoch #")
 
 plt.ylabel("Loss/Accuracy")
 plt.legend()
-plt.savefig("plot_lstm64.png")
-
+plt.savefig("plot_gru64.png")
+np.save("metrics_gru64.npy", np.array(metrics_), allow_pickle=True)
 # %%
 #tf.keras.saving.save_model(model, "../model_save")
 # %%

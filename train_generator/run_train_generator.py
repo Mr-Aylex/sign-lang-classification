@@ -25,13 +25,13 @@ from custom_model.encoder_generator.model import *
 
 # %%
 DATA_FOLDER = "/mnt/e/sign-lang-data-2"
-train = pd.read_csv(f'{DATA_FOLDER}/train.csv')
+train = pd.read_csv(f'{DATA_FOLDER}/supplemental_metadata.csv')
 
 convert_to_tf_lite = True
 # %%
 N_WARMUP_EPOCHS = 10
 LR_MAX = 1e-3
-N_EPOCHS = 100
+N_EPOCHS = 10
 #
 # MatplotLib Global Settings
 mpl.rcParams.update(mpl.rcParamsDefault)
@@ -60,7 +60,7 @@ batch_size = 128
 train_dataset = get_train_dataset(X_train, y_train, batch_size)
 val_dataset = get_val_dataset(X_val, y_val, batch_size)
 # %%
-params1 = {
+params2 = {
     'n_frames': 128,  # don't touch
     'n_cols': 164,  # don't touch
     'max_phrase_length': MAX_PHRASE_LENGTH,
@@ -69,14 +69,14 @@ params1 = {
     'num_blocks_decoder': 3,
     'units_encoder': 96,  # default 384
     'units_decoder': 64,  # default 256
-    'num_head': 8,
+    'num_head': 4,
     'mlp_ratio': 2,
     'mh_dropout_ratio': 0.3,
     'layer_nom_eps': 1e-6,
     'mlp_dropout_ratio': 0.30,
     'classifier_dropout_ratio': 0.10,
 }
-params2 = {
+params1 = {
     'n_frames': 128,  # don't touch
     'n_cols': 164,  # don't touch
     'max_phrase_length': MAX_PHRASE_LENGTH,
@@ -94,13 +94,13 @@ params2 = {
 }
 
 for params in [params1, params2]:
-# clear session
+    # clear session
     tf.keras.backend.clear_session()
-    MODEL_NAME = f'encoder_generator_{params["units_encoder"]}_{params["units_decoder"]}_{params["num_head"]}'
+    MODEL_NAME = f'encoder_generator2_{params["units_encoder"]}_{params["units_decoder"]}_{params["num_head"]}'
     # %%
     preprocess_layer = PreprocessLayer()
     model = get_model(mean=MEANS, std=STDS, params=params)
-
+    # model.load_weights(f'{MODEL_NAME}.h5')
     print(model.summary(expand_nested=True))
     tf.keras.utils.plot_model(
         model, to_file=f'{MODEL_NAME}.png',
@@ -113,8 +113,9 @@ for params in [params1, params2]:
     n_val_step_per_epoch = math.ceil(n_val_sample / batch_size)
     verify_no_nan_predictions(model, val_dataset, n_val_step_per_epoch)
     # %%
-    LR_SCHEDULE = [lrfn(step, num_warmup_steps=N_WARMUP_EPOCHS, lr_max=LR_MAX, num_training_steps=N_EPOCHS, num_cycles=0.50)
-                   for step in range(N_EPOCHS)]
+    LR_SCHEDULE = [
+        lrfn(step, num_warmup_steps=N_WARMUP_EPOCHS, lr_max=LR_MAX, num_training_steps=N_EPOCHS, num_cycles=0.50)
+        for step in range(N_EPOCHS)]
     # Plot Learning Rate Schedule
     plot_lr_schedule(LR_SCHEDULE, epochs=N_EPOCHS)
 
@@ -143,6 +144,7 @@ for params in [params1, params2]:
             csv_logger
         ]
     )
+
     model.save(f'{MODEL_NAME}.h5')
     # %%
     model.evaluate(
@@ -201,5 +203,3 @@ for params in [params1, params2]:
         # Write Model
         with open(f'model_save/{MODEL_NAME}.tflite', 'wb') as f:
             f.write(tflite_model)
-
-

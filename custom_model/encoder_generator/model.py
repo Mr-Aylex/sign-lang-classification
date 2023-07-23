@@ -28,7 +28,7 @@ ORD2CHAR = {j: i for i, j in CHAR2ORD.items()}
 N_UNIQUE_CHARACTERS0 = len(CHAR2ORD)
 N_UNIQUE_CHARACTERS = len(CHAR2ORD) + 1 + 1 + 1
 
-MAX_PHRASE_LENGTH = 31 + 1
+MAX_PHRASE_LENGTH = 43 + 1
 
 PAD_TOKEN = len(CHAR2ORD)  # Padding
 SOS_TOKEN = len(CHAR2ORD) + 1  # Start Of Sentence

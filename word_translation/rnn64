@@ -1,0 +1,408 @@
+/home/dev/miniconda3/bin/conda run -n sign-lang --no-capture-output python /mnt/c/Users/Carmo/Leviia/PycharmProject/sign-lang-classification/word_translation/run_model.py
+2023-07-22 09:28:07.134410: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2023-07-22 09:28:07.615388: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+2023-07-22 09:28:08.823818: I tensorflow/compiler/xla/stream_executor/cuda/cuda_gpu_executor.cc:982] could not open file to read NUMA node: /sys/bus/pci/devices/0000:2d:00.0/numa_node
+Your kernel may have been built without NUMA support.
+2023-07-22 09:28:08.837648: I tensorflow/compiler/xla/stream_executor/cuda/cuda_gpu_executor.cc:982] could not open file to read NUMA node: /sys/bus/pci/devices/0000:2d:00.0/numa_node
+Your kernel may have been built without NUMA support.
+2023-07-22 09:28:08.837728: I tensorflow/compiler/xla/stream_executor/cuda/cuda_gpu_executor.cc:982] could not open file to read NUMA node: /sys/bus/pci/devices/0000:2d:00.0/numa_node
+Your kernel may have been built without NUMA support.
+2023-07-22 09:28:08.839599: I tensorflow/compiler/xla/stream_executor/cuda/cuda_gpu_executor.cc:982] could not open file to read NUMA node: /sys/bus/pci/devices/0000:2d:00.0/numa_node
+Your kernel may have been built without NUMA support.
+2023-07-22 09:28:08.839652: I tensorflow/compiler/xla/stream_executor/cuda/cuda_gpu_executor.cc:982] could not open file to read NUMA node: /sys/bus/pci/devices/0000:2d:00.0/numa_node
+Your kernel may have been built without NUMA support.
+2023-07-22 09:28:08.839696: I tensorflow/compiler/xla/stream_executor/cuda/cuda_gpu_executor.cc:982] could not open file to read NUMA node: /sys/bus/pci/devices/0000:2d:00.0/numa_node
+Your kernel may have been built without NUMA support.
+2023-07-22 09:28:09.429775: I tensorflow/compiler/xla/stream_executor/cuda/cuda_gpu_executor.cc:982] could not open file to read NUMA node: /sys/bus/pci/devices/0000:2d:00.0/numa_node
+Your kernel may have been built without NUMA support.
+2023-07-22 09:28:09.429937: I tensorflow/compiler/xla/stream_executor/cuda/cuda_gpu_executor.cc:982] could not open file to read NUMA node: /sys/bus/pci/devices/0000:2d:00.0/numa_node
+Your kernel may have been built without NUMA support.
+2023-07-22 09:28:09.429966: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1722] Could not identify NUMA node of platform GPU id 0, defaulting to 0.  Your kernel may not have been built with NUMA support.
+2023-07-22 09:28:09.430035: I tensorflow/compiler/xla/stream_executor/cuda/cuda_gpu_executor.cc:982] could not open file to read NUMA node: /sys/bus/pci/devices/0000:2d:00.0/numa_node
+Your kernel may have been built without NUMA support.
+2023-07-22 09:28:09.430081: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1635] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 7335 MB memory:  -> device: 0, name: NVIDIA GeForce RTX 3080, pci bus id: 0000:2d:00.0, compute capability: 8.6
+2023-07-22 09:28:10.307772: I tensorflow/compiler/xla/stream_executor/cuda/cuda_blas.cc:637] TensorFloat-32 will be used for the matrix multiplication. This will only be logged once.
+100%|██████████| 94477/94477 [00:00<00:00, 1042523.48it/s]
+
+Start of epoch 0
+  0%|          | 0/296 [00:00<?, ?it/s]2023-07-22 09:28:10.949836: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'Placeholder/_1' with dtype string and shape [75581]
+	 [[{{node Placeholder/_1}}]]
+2023-07-22 09:28:10.950039: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'Placeholder/_0' with dtype string and shape [75581]
+	 [[{{node Placeholder/_0}}]]
+100%|██████████| 296/296 [04:04<00:00,  1.21it/s, train_acc=0.0047, train_loss=5.47]
+  0%|          | 0/74 [00:00<?, ?it/s]2023-07-22 09:32:15.766499: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'Placeholder/_1' with dtype string and shape [18896]
+	 [[{{node Placeholder/_1}}]]
+2023-07-22 09:32:15.766704: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'Placeholder/_1' with dtype string and shape [18896]
+	 [[{{node Placeholder/_1}}]]
+Train acc: 0.0047 ; loss: 5.5307
+100%|██████████| 74/74 [01:03<00:00,  1.17it/s, val_acc=0.00696, val_loss=5.46]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0074 ; loss: 5.4779
+Time taken: 308.22s
+
+Start of epoch 1
+100%|██████████| 296/296 [04:05<00:00,  1.20it/s, train_acc=0.0085, train_loss=5.39]
+Train acc: 0.0080 ; loss: 5.4128
+100%|██████████| 74/74 [01:03<00:00,  1.16it/s, val_acc=0.00878, val_loss=5.3]
+Validation acc: 0.0086 ; loss: 5.3434
+Time taken: 309.70s
+
+Start of epoch 2
+100%|██████████| 296/296 [04:11<00:00,  1.18it/s, train_acc=0.011, train_loss=5.41]
+Train acc: 0.0106 ; loss: 5.3353
+100%|██████████| 74/74 [01:05<00:00,  1.13it/s, val_acc=0.00803, val_loss=5.37]
+Validation acc: 0.0072 ; loss: 5.3995
+Time taken: 317.32s
+
+Start of epoch 3
+100%|██████████| 296/296 [04:14<00:00,  1.16it/s, train_acc=0.0111, train_loss=5.29]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0108 ; loss: 5.3142
+100%|██████████| 74/74 [01:13<00:00,  1.00it/s, val_acc=0.0135, val_loss=5.3]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0149 ; loss: 5.2809
+Time taken: 327.91s
+
+Start of epoch 4
+100%|██████████| 296/296 [04:53<00:00,  1.01it/s, train_acc=0.0122, train_loss=5.24]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0122 ; loss: 5.2758
+100%|██████████| 74/74 [01:12<00:00,  1.02it/s, val_acc=0.014, val_loss=5.17]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0147 ; loss: 5.2015
+Time taken: 366.38s
+
+Start of epoch 5
+100%|██████████| 296/296 [04:20<00:00,  1.14it/s, train_acc=0.0085, train_loss=5.4]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0109 ; loss: 5.4513
+100%|██████████| 74/74 [01:04<00:00,  1.15it/s, val_acc=0.0102, val_loss=5.41]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0093 ; loss: 5.4186
+Time taken: 324.76s
+
+Start of epoch 6
+100%|██████████| 296/296 [04:16<00:00,  1.15it/s, train_acc=0.00867, train_loss=5.36]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0090 ; loss: 5.3904
+100%|██████████| 74/74 [01:07<00:00,  1.09it/s, val_acc=0.0101, val_loss=5.4]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0113 ; loss: 5.3722
+Time taken: 324.13s
+
+Start of epoch 7
+100%|██████████| 296/296 [04:19<00:00,  1.14it/s, train_acc=0.011, train_loss=5.34]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0107 ; loss: 5.3408
+100%|██████████| 74/74 [01:03<00:00,  1.16it/s, val_acc=0.0101, val_loss=5.33]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0105 ; loss: 5.3214
+Time taken: 323.77s
+
+Start of epoch 8
+100%|██████████| 296/296 [04:02<00:00,  1.22it/s, train_acc=0.0127, train_loss=5.27]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0126 ; loss: 5.3006
+100%|██████████| 74/74 [01:00<00:00,  1.22it/s, val_acc=0.0113, val_loss=5.31]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0106 ; loss: 5.2978
+Time taken: 302.60s
+
+Start of epoch 9
+100%|██████████| 296/296 [03:59<00:00,  1.24it/s, train_acc=0.0133, train_loss=5.3]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0137 ; loss: 5.2642
+100%|██████████| 74/74 [00:58<00:00,  1.25it/s, val_acc=0.0145, val_loss=5.24]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0136 ; loss: 5.2487
+Time taken: 298.45s
+
+Start of epoch 10
+100%|██████████| 296/296 [03:57<00:00,  1.25it/s, train_acc=0.0163, train_loss=5.22]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0159 ; loss: 5.2334
+100%|██████████| 74/74 [00:59<00:00,  1.25it/s, val_acc=0.0154, val_loss=5.26]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0169 ; loss: 5.2217
+Time taken: 296.34s
+
+Start of epoch 11
+100%|██████████| 296/296 [03:56<00:00,  1.25it/s, train_acc=0.0162, train_loss=5.2]
+Train acc: 0.0168 ; loss: 5.2088
+100%|██████████| 74/74 [00:59<00:00,  1.24it/s, val_acc=0.0155, val_loss=5.14]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0156 ; loss: 5.2341
+Time taken: 295.93s
+
+Start of epoch 12
+100%|██████████| 296/296 [03:56<00:00,  1.25it/s, train_acc=0.018, train_loss=5.25]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0179 ; loss: 5.1879
+100%|██████████| 74/74 [01:00<00:00,  1.23it/s, val_acc=0.0162, val_loss=5.2]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0156 ; loss: 5.2181
+Time taken: 297.41s
+
+Start of epoch 13
+100%|██████████| 296/296 [04:00<00:00,  1.23it/s, train_acc=0.0182, train_loss=5.21]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0175 ; loss: 5.1884
+100%|██████████| 74/74 [01:00<00:00,  1.22it/s, val_acc=0.0184, val_loss=5.17]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0184 ; loss: 5.1763
+Time taken: 301.49s
+
+Start of epoch 14
+100%|██████████| 296/296 [04:00<00:00,  1.23it/s, train_acc=0.0166, train_loss=5.2]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0176 ; loss: 5.2197
+100%|██████████| 74/74 [01:00<00:00,  1.22it/s, val_acc=0.0154, val_loss=5.25]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0160 ; loss: 5.2370
+Time taken: 301.67s
+
+Start of epoch 15
+100%|██████████| 296/296 [03:59<00:00,  1.23it/s, train_acc=0.0148, train_loss=5.18]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0152 ; loss: 5.2354
+100%|██████████| 74/74 [01:00<00:00,  1.22it/s, val_acc=0.0151, val_loss=5.25]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0156 ; loss: 5.2244
+Time taken: 300.60s
+
+Start of epoch 16
+100%|██████████| 296/296 [04:01<00:00,  1.23it/s, train_acc=0.0142, train_loss=5.32]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0152 ; loss: 5.2471
+100%|██████████| 74/74 [01:01<00:00,  1.21it/s, val_acc=0.0123, val_loss=5.32]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0124 ; loss: 5.2801
+Time taken: 302.62s
+
+Start of epoch 17
+100%|██████████| 296/296 [04:02<00:00,  1.22it/s, train_acc=0.0137, train_loss=5.19]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0138 ; loss: 5.2578
+100%|██████████| 74/74 [01:00<00:00,  1.22it/s, val_acc=0.0158, val_loss=5.21]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0159 ; loss: 5.2461
+Time taken: 303.00s
+
+Start of epoch 18
+100%|██████████| 296/296 [04:02<00:00,  1.22it/s, train_acc=0.0149, train_loss=5.16]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0149 ; loss: 5.2217
+100%|██████████| 74/74 [01:00<00:00,  1.22it/s, val_acc=0.0171, val_loss=5.19]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0159 ; loss: 5.2079
+Time taken: 303.06s
+
+Start of epoch 19
+100%|██████████| 296/296 [04:00<00:00,  1.23it/s, train_acc=0.0162, train_loss=5.2]
+Train acc: 0.0159 ; loss: 5.1982
+100%|██████████| 74/74 [00:59<00:00,  1.24it/s, val_acc=0.0174, val_loss=5.24]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0175 ; loss: 5.1950
+Time taken: 299.92s
+
+Start of epoch 20
+100%|██████████| 296/296 [03:58<00:00,  1.24it/s, train_acc=0.0167, train_loss=5.16]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0174 ; loss: 5.1777
+100%|██████████| 74/74 [01:01<00:00,  1.21it/s, val_acc=0.0171, val_loss=5.2]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0148 ; loss: 5.1814
+Time taken: 300.20s
+
+Start of epoch 21
+100%|██████████| 296/296 [03:57<00:00,  1.24it/s, train_acc=0.0139, train_loss=5.31]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0156 ; loss: 5.2415
+100%|██████████| 74/74 [01:00<00:00,  1.23it/s, val_acc=0.00958, val_loss=5.37]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0088 ; loss: 5.3176
+Time taken: 298.01s
+
+Start of epoch 22
+100%|██████████| 296/296 [03:56<00:00,  1.25it/s, train_acc=0.0115, train_loss=5.2]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0110 ; loss: 5.2750
+100%|██████████| 74/74 [00:59<00:00,  1.25it/s, val_acc=0.0126, val_loss=5.25]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0126 ; loss: 5.2591
+Time taken: 295.99s
+
+Start of epoch 23
+100%|██████████| 296/296 [03:56<00:00,  1.25it/s, train_acc=0.0133, train_loss=5.27]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0127 ; loss: 5.2334
+100%|██████████| 74/74 [00:59<00:00,  1.24it/s, val_acc=0.0134, val_loss=5.27]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0147 ; loss: 5.2601
+Time taken: 296.26s
+
+Start of epoch 24
+100%|██████████| 296/296 [03:56<00:00,  1.25it/s, train_acc=0.0141, train_loss=5.25]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0142 ; loss: 5.2230
+100%|██████████| 74/74 [00:59<00:00,  1.25it/s, val_acc=0.0165, val_loss=5.2]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0181 ; loss: 5.2140
+Time taken: 295.49s
+
+Start of epoch 25
+100%|██████████| 296/296 [03:56<00:00,  1.25it/s, train_acc=0.0144, train_loss=5.18]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0144 ; loss: 5.2073
+100%|██████████| 74/74 [01:00<00:00,  1.23it/s, val_acc=0.0148, val_loss=5.23]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0155 ; loss: 5.2063
+Time taken: 296.82s
+
+Start of epoch 26
+100%|██████████| 296/296 [03:57<00:00,  1.25it/s, train_acc=0.0155, train_loss=5.22]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0156 ; loss: 5.1961
+100%|██████████| 74/74 [00:59<00:00,  1.24it/s, val_acc=0.0167, val_loss=5.19]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0170 ; loss: 5.1884
+Time taken: 297.14s
+
+Start of epoch 27
+100%|██████████| 296/296 [03:57<00:00,  1.25it/s, train_acc=0.0163, train_loss=5.16]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0158 ; loss: 5.1579
+100%|██████████| 74/74 [00:59<00:00,  1.24it/s, val_acc=0.0184, val_loss=5.15]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0200 ; loss: 5.1492
+Time taken: 296.84s
+
+Start of epoch 28
+100%|██████████| 296/296 [03:58<00:00,  1.24it/s, train_acc=0.0187, train_loss=5.18]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0185 ; loss: 5.1385
+100%|██████████| 74/74 [01:02<00:00,  1.19it/s, val_acc=0.017, val_loss=5.17]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0165 ; loss: 5.2005
+Time taken: 300.90s
+
+Start of epoch 29
+100%|██████████| 296/296 [04:01<00:00,  1.23it/s, train_acc=0.0177, train_loss=5.17]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0177 ; loss: 5.1720
+100%|██████████| 74/74 [01:00<00:00,  1.23it/s, val_acc=0.0166, val_loss=5.18]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0162 ; loss: 5.1863
+Time taken: 301.72s
+
+Start of epoch 30
+100%|██████████| 296/296 [04:06<00:00,  1.20it/s, train_acc=0.0175, train_loss=5.06]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0184 ; loss: 5.1661
+100%|██████████| 74/74 [01:04<00:00,  1.14it/s, val_acc=0.0179, val_loss=5.14]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0185 ; loss: 5.1625
+Time taken: 311.30s
+
+Start of epoch 31
+100%|██████████| 296/296 [04:25<00:00,  1.11it/s, train_acc=0.0147, train_loss=5.24]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0144 ; loss: 5.1855
+100%|██████████| 74/74 [01:08<00:00,  1.08it/s, val_acc=0.0166, val_loss=5.2]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0165 ; loss: 5.1875
+Time taken: 334.31s
+
+Start of epoch 32
+100%|██████████| 296/296 [04:19<00:00,  1.14it/s, train_acc=0.0171, train_loss=5.11]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0162 ; loss: 5.1597
+100%|██████████| 74/74 [01:05<00:00,  1.13it/s, val_acc=0.0188, val_loss=5.14]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0190 ; loss: 5.1369
+Time taken: 325.18s
+
+Start of epoch 33
+100%|██████████| 296/296 [04:22<00:00,  1.13it/s, train_acc=0.0217, train_loss=5.08]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0212 ; loss: 5.1217
+100%|██████████| 74/74 [01:12<00:00,  1.02it/s, val_acc=0.021, val_loss=5.03]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0202 ; loss: 5.1131
+Time taken: 334.77s
+
+Start of epoch 34
+100%|██████████| 296/296 [05:08<00:00,  1.04s/it, train_acc=0.0195, train_loss=5.27]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0222 ; loss: 5.1554
+100%|██████████| 74/74 [01:21<00:00,  1.10s/it, val_acc=0.0147, val_loss=5.31]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0146 ; loss: 5.2602
+Time taken: 389.28s
+
+Start of epoch 35
+100%|██████████| 296/296 [04:23<00:00,  1.12it/s, train_acc=0.0166, train_loss=5.12]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0159 ; loss: 5.1984
+100%|██████████| 74/74 [01:09<00:00,  1.07it/s, val_acc=0.0179, val_loss=5.24]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0169 ; loss: 5.1802
+Time taken: 333.14s
+
+Start of epoch 36
+100%|██████████| 296/296 [04:22<00:00,  1.13it/s, train_acc=0.0161, train_loss=5.25]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0173 ; loss: 5.2198
+100%|██████████| 74/74 [01:07<00:00,  1.10it/s, val_acc=0.0169, val_loss=5.21]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0167 ; loss: 5.2249
+Time taken: 330.03s
+
+Start of epoch 37
+100%|██████████| 296/296 [04:17<00:00,  1.15it/s, train_acc=0.0155, train_loss=5.12]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0155 ; loss: 5.2120
+100%|██████████| 74/74 [01:05<00:00,  1.13it/s, val_acc=0.0164, val_loss=5.21]
+Validation acc: 0.0161 ; loss: 5.1872
+Time taken: 323.73s
+
+Start of epoch 38
+100%|██████████| 296/296 [04:17<00:00,  1.15it/s, train_acc=0.0181, train_loss=5.15]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0175 ; loss: 5.1706
+100%|██████████| 74/74 [01:05<00:00,  1.13it/s, val_acc=0.0187, val_loss=5.1]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0187 ; loss: 5.1519
+Time taken: 322.67s
+
+Start of epoch 39
+100%|██████████| 296/296 [04:17<00:00,  1.15it/s, train_acc=0.0181, train_loss=5.19]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0183 ; loss: 5.1628
+100%|██████████| 74/74 [01:05<00:00,  1.13it/s, val_acc=0.0204, val_loss=5.08]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0219 ; loss: 5.1641
+Time taken: 322.36s
+
+Start of epoch 40
+100%|██████████| 296/296 [04:18<00:00,  1.15it/s, train_acc=0.0195, train_loss=5.13]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0200 ; loss: 5.1388
+100%|██████████| 74/74 [01:04<00:00,  1.14it/s, val_acc=0.0173, val_loss=5.17]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0191 ; loss: 5.1732
+Time taken: 323.01s
+
+Start of epoch 41
+100%|██████████| 296/296 [04:16<00:00,  1.15it/s, train_acc=0.0186, train_loss=5.19]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0198 ; loss: 5.1467
+100%|██████████| 74/74 [01:05<00:00,  1.13it/s, val_acc=0.0181, val_loss=5.18]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0185 ; loss: 5.1427
+Time taken: 322.26s
+
+Start of epoch 42
+100%|██████████| 296/296 [04:18<00:00,  1.15it/s, train_acc=0.02, train_loss=5]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0204 ; loss: 5.1357
+100%|██████████| 74/74 [01:05<00:00,  1.13it/s, val_acc=0.0192, val_loss=5.14]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0196 ; loss: 5.1290
+Time taken: 323.81s
+
+Start of epoch 43
+100%|██████████| 296/296 [04:19<00:00,  1.14it/s, train_acc=0.02, train_loss=5.08]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0198 ; loss: 5.1304
+100%|██████████| 74/74 [01:05<00:00,  1.12it/s, val_acc=0.0203, val_loss=5.15]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0188 ; loss: 5.1204
+Time taken: 324.96s
+
+Start of epoch 44
+100%|██████████| 296/296 [04:18<00:00,  1.14it/s, train_acc=0.0154, train_loss=5.22]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0164 ; loss: 5.2065
+100%|██████████| 74/74 [01:06<00:00,  1.12it/s, val_acc=0.0163, val_loss=5.24]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0164 ; loss: 5.1929
+Time taken: 324.57s
+
+Start of epoch 45
+100%|██████████| 296/296 [04:19<00:00,  1.14it/s, train_acc=0.0163, train_loss=5.12]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0162 ; loss: 5.1829
+100%|██████████| 74/74 [01:05<00:00,  1.12it/s, val_acc=0.0153, val_loss=5.18]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0153 ; loss: 5.2014
+Time taken: 324.94s
+
+Start of epoch 46
+100%|██████████| 296/296 [04:16<00:00,  1.15it/s, train_acc=0.016, train_loss=5.28]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0151 ; loss: 5.1842
+100%|██████████| 74/74 [01:05<00:00,  1.14it/s, val_acc=0.0192, val_loss=5.2]
+Validation acc: 0.0204 ; loss: 5.1927
+Time taken: 321.59s
+
+Start of epoch 47
+100%|██████████| 296/296 [04:16<00:00,  1.16it/s, train_acc=0.014, train_loss=5.21]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0153 ; loss: 5.2406
+100%|██████████| 74/74 [01:04<00:00,  1.14it/s, val_acc=0.0143, val_loss=5.2]
+Validation acc: 0.0123 ; loss: 5.2326
+Time taken: 320.94s
+
+Start of epoch 48
+100%|██████████| 296/296 [04:15<00:00,  1.16it/s, train_acc=0.0145, train_loss=5.2]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0139 ; loss: 5.2268
+100%|██████████| 74/74 [01:04<00:00,  1.14it/s, val_acc=0.0151, val_loss=5.24]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0163 ; loss: 5.2262
+Time taken: 320.52s
+
+Start of epoch 49
+100%|██████████| 296/296 [04:15<00:00,  1.16it/s, train_acc=0.0143, train_loss=5.22]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0151 ; loss: 5.2303
+100%|██████████| 74/74 [01:04<00:00,  1.14it/s, val_acc=0.0161, val_loss=5.23]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0165 ; loss: 5.2276
+Time taken: 320.24s
+
+Start of epoch 50
+100%|██████████| 296/296 [04:15<00:00,  1.16it/s, train_acc=0.0132, train_loss=5.32]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0144 ; loss: 5.2526
+100%|██████████| 74/74 [01:05<00:00,  1.14it/s, val_acc=0.0116, val_loss=5.38]
+Validation acc: 0.0113 ; loss: 5.2992
+Time taken: 320.20s
+
+Start of epoch 51
+100%|██████████| 296/296 [04:15<00:00,  1.16it/s, train_acc=0.0139, train_loss=5.22]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0135 ; loss: 5.2264
+100%|██████████| 74/74 [01:04<00:00,  1.15it/s, val_acc=0.0155, val_loss=5.23]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0181 ; loss: 5.2213
+Time taken: 319.43s
+
+Start of epoch 52
+100%|██████████| 296/296 [04:16<00:00,  1.15it/s, train_acc=0.0148, train_loss=5.26]
+  0%|          | 0/74 [00:00<?, ?it/s]Train acc: 0.0160 ; loss: 5.2186
+100%|██████████| 74/74 [01:04<00:00,  1.14it/s, val_acc=0.0148, val_loss=5.3]
+  0%|          | 0/296 [00:00<?, ?it/s]Validation acc: 0.0156 ; loss: 5.2264
+Time taken: 321.45s
+
+Start of epoch 53
+ 90%|████████▉ | 265/296 [03:51<00:27,  1.14it/s, train_acc=0.0151, train_loss=5.27]

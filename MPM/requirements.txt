@@ -1,5 +1,0 @@
-opencv-python
-mediapipe
-flask
-pandas
-boto3

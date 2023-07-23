@@ -23,9 +23,13 @@ features = 1629
 nb_classes = 250
 #model = Model(batch_size, timesteps, features, nb_classes)
 
-interpreter = tf.lite.Interpreter(model_path="/app/model.tflite")
+interpreter = tf.lite.Interpreter(model_path="/app/encoder_generator2_96_64_4.tflite")
 interpreter.allocate_tensors()
 model = interpreter.get_signature_runner()
+
+interpreter2 = tf.lite.Interpreter(model_path="/app/encoder_generator2_432_320_4.tflite")
+interpreter2.allocate_tensors()
+model2 = interpreter.get_signature_runner()
 
 selected_colomns = pd.read_json("/app/inference_args.json", orient="index")
 selected_colomns = selected_colomns.transpose().values
@@ -111,11 +115,14 @@ def predict():
         df = pd.read_csv(uploaded_file)
         data = df.astype(np.float32).values
         demo_output = model(inputs=data)['outputs']
-
         # Convert to string
         demo_output = outputs2phrase(demo_output)
 
-        return jsonify({"result": demo_output})
+        demo_output2 = model2(inputs=data)['outputs']
+        # Convert to string
+        demo_output2 = outputs2phrase(demo_output2)
+
+        return jsonify({"result1": demo_output, "result2": demo_output2})
 
 @app.route('/')
 def health():
