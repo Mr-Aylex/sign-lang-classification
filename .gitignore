@@ -4,3 +4,6 @@
 
 /.ipynb_checkpoints/
 /checkpoint/
+*.h5
+*.png
+*.jpg
